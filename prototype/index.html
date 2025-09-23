@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Paper Trail</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 20px; }
+    h1 { margin: 0 0 8px; font-size: 18px; }
+    svg { border: 1px solid #ddd; background: #fafafa; }
+    .controls { display:flex; gap:6px; margin: 8px 0 10px; }
+    button { padding:6px 10px; border:1px solid #ccc; background:white; border-radius:6px; cursor:pointer; }
+    button:hover { background:#f3f3f3; }
+    .tooltip {
+      position: absolute; pointer-events: none; display: none;
+      background: #fff; border: 1px solid #aaa; padding: 6px 8px; border-radius: 4px; font-size: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Paper Trail (Prototype)</h1>
+  <div> A visualization of historical documents from the American Revolution era, categorized by topic and decade.</div>
+  <svg id="trail" width="960" height="520"></svg>
+  <div id="tip" class="tooltip"></div>
+
+    <div class="controls">
+    <button onclick="filterByTopic('All')">All</button>
+    <button onclick="filterByTopic('Politics')">Politics</button>
+    <button onclick="filterByTopic('Military')">Military</button>
+    <button onclick="filterByTopic('Society')">Society</button>
+    <button onclick="filterByTopic('Religion')">Religion</button>
+    <button onclick="filterByTopic('Other')">Other</button>
+  </div>
+  
+  <script src="main.js"></script>
+</body>
+</html>
+
+
+
+<!-- 
+Use of Generative Artificial Intelligence Tools:
+Tool/Software/Model: OpenAI ChatGPT (GPT-5)
+Use: Helped me write parts of the JavaScript code, fix errors when the code
+did not work, and simplify/reorganize the code to be clearer.
+-->
