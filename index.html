@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Paper Trail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+  <h1>Paper Trail</h1>
+  <div class="sub">This visualization shows historical documents from the late 18th to early 19th century, grouped by decade and topic. 
+    Each box is color-coded by topic — hover to see details, click to view the document.</div>
+  <div class="legend" aria-label="Topic legend">
+    <span><i class="swatch" style="background:#e45756"></i>Politics</span>
+    <span><i class="swatch" style="background:#4d9de0"></i>Military</span>
+    <span><i class="swatch" style="background:#59a14f"></i>Society</span>
+    <span><i class="swatch" style="background:#a05eb5"></i>Business</span>
+    <span><i class="swatch" style="background:#f2a541"></i>Religion</span>
+  </div>
+  <svg id="trail" width="960" height="560" role="img" aria-label="Decade by topic grid"></svg>
+  <div id="tip" class="tooltip" role="status" aria-live="polite"></div>
+  <div class="controls" aria-label="Topic filters">
+    <button data-topic="All">All</button>
+    <button data-topic="Politics">Politics</button>
+    <button data-topic="Military">Military</button>
+    <button data-topic="Society">Society</button>
+    <button data-topic="Business">Business</button>
+    <button data-topic="Religion">Religion</button>
+  </div>
+  <script src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+body { 
+  font-family: ui-sans-serif, system-ui, -apple-system, "Inter", Arial; 
+  margin: 24px; color:#222; 
+}
+h1 { 
+  margin: 0 0 6px; 
+  font-size: 32px; 
+  font-weight: 600; 
+  letter-spacing: .2px; 
+  line-height: 1.2; 
+}
+.sub { color:#666; 
+  margin-bottom:12px;   
+  font-size: 13px; 
+  line-height:1.4; 
+  font-weight:400;}
+
+
+svg { 
+  border: 1px solid #e5e5e5; 
+  background: #fafafa; 
+  border-radius: 8px;
+  margin-top: 8px; 
+  overflow: visible; }
+
+
+.controls { 
+  display:flex; 
+  gap:12px; 
+  flex-wrap:wrap; 
+  margin: 10px 0 12px; 
+}
+button { 
+  padding:6px 10px; 
+  border:1px solid #d0d0d0; 
+  background:white; 
+  border-radius:8px; 
+  cursor:pointer; 
+  font-size:14px; 
+  transition: all .2s ease;
+}
+button:hover { 
+  background:#f6f6f6; 
+  border-color:#999;
+}
+button.active { 
+  border-color:#111; 
+  background:#e0e0e0; 
+  font-weight:600; 
+}
+
+.tooltip {
+  position: absolute; 
+  pointer-events: none; 
+  display: none;
+  background: #fff; 
+  border: 1px solid #bbb; 
+  padding: 6px 8px; 
+  border-radius: 6px; 
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* Axis / grid labels */
+.decade-label { 
+  fill:#444; 
+  font-size:12px; 
+  text-anchor: middle; 
+}
+
+
+.legend { 
+  font-size:12px; 
+  margin: 8px 0 20px; 
+}
+.legend .swatch{
+  display:inline-block;
+  width:14px; height:14px;
+  border-radius:3px;
+  margin-right:6px; vertical-align:middle;
+}
+
+
+svg#trail{
+  border: 1px solid #e5e5e5; 
+  background:#fafafa; 
+  border-radius:8px;
+  margin-top: 8px; 
+  display:block; 
+  overflow:visible;
+}
+
+
+.decade-label{ 
+  fill:#444; 
+  font-size:12px; 
+  text-anchor:middle; 
+}
+
+
+.tooltip{
+  position: fixed; 
+  z-index: 1000;
+  pointer-events:none; 
+  display:none;
+  background:#fff; 
+  border:1px solid #bbb; 
+  padding:6px 8px; 
+  border-radius:6px; 
+  font-size:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
