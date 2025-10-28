@@ -1,0 +1,329 @@
+:root{
+  --bg:#f0f1f3;
+  --panel:#f2f2f2;
+  --ink:#ffffff;
+  --muted:#9aa3b2;
+  --accent:#7aa2ff;
+  --border:#d7d7d7;
+
+  /* 타일: 직사각형 */
+  --tileW: 38px;
+  --tileH: 50px;
+  --gap: 8px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:#ffffff; color:#2c2c2c;
+  font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial, sans-serif;
+}
+
+/* Header */
+.app-header{
+  padding:16px 20px; border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+}
+.app-header h1{margin:0 0 4px 0;font-weight:700;font-size:20px}
+.subtitle{margin:0;color:var(--muted)}
+
+/* Layout */
+.container{
+  display:flex; flex-direction:row;
+  min-height:calc(100vh - 98px);
+}
+.mosaic-wrap{
+  flex:1; position:relative; padding:16px; overflow:auto;
+}
+.panel.right{
+  position: relative; z-index: 5; 
+  padding: 16px; 
+  width:400px;
+  background:var(--panel); border-left:1px solid var(--border);
+}
+
+/* 툴팁 */
+.tip{
+  position: fixed;
+  max-width: 360px;
+  background: #0f1322;
+  color: #e7e9ef;
+  border: 1px solid #2a3042;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  font-size: 12px;
+  line-height: 1.45;
+  pointer-events: none;
+  transform: translate(-50%, -120%);
+  z-index: 999;
+}
+.tip.hidden{ display:none; }
+.tip .t1{ font-weight: 700; margin-bottom: 4px; }
+.tip .t2{ color:#9aa3b2; margin-bottom: 6px; }
+.tip .t3{ color:#cbd3e1; }
+
+/* Topic & Legend */
+.panel h2{
+  margin:0 0 8px 0; font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);
+}
+.btn-row{ display:flex; flex-wrap:wrap; gap:6px; }
+.btn{
+  background:#f5f5f5; border:1px solid #e0e0e0; color: #2c2c2c;
+  padding:6px 10px; border-radius:999px; cursor:pointer; font-weight:600; font-size:12px;
+}
+.btn:hover{background:#ffffff} .btn.active{outline:2px solid #000000}
+.legend{margin-top:14px}
+.legend-head{display:flex;align-items:center;justify-content:space-between}
+.hint{color:var(--muted)}
+
+/* 캐논 리스트 */
+.canon-list{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+.canon-item{
+  display:flex; align-items:center; gap:8px;
+  background:#f5f5f5; border:1px solid #e0e0e0;
+  border-radius:10px; padding:8px 10px; cursor:pointer;
+}
+.canon-item .label{min-width:120px}
+
+/* 레전드 바 */
+.canon-item .bar-track{
+  height:6px; background:#f5f5f5; border-radius:3px; flex:1; position:relative; overflow:hidden;
+}
+.canon-item .bar-inner{
+  position:absolute; left:0; top:0; bottom:0;
+  width:var(--w,0%);
+  background:var(--topic-color, var(--accent));
+  border-radius:3px;
+  transition: width .15s ease;
+}
+
+.canon-item[data-topic="Military"]   .bar-inner { background:#FA8468; }
+.canon-item[data-topic="Society"]    .bar-inner { background:#53ADDE; }
+.canon-item[data-topic="Political"]  .bar-inner { background:#FFC970; }
+.canon-item[data-topic="Religion"]   .bar-inner { background:#68C89E; }
+.canon-item[data-topic="Business"]   .bar-inner { background:#6886C8; }
+.canon-item[data-topic="Other"]      .bar-inner { background:#B0B0B0; }
+
+/* Dense mosaic grid */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, var(--tileW));
+  gap: var(--gap);
+  align-content:start;
+}
+.tile{
+  width: var(--tileW);
+  height: var(--tileH);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform .2s;
+  outline: 1px solid rgba(255,255,255,0.05);
+  background-size: 100% 100%;
+}
+.tile:hover{
+  transform: scale(1.6);
+  box-shadow: 0 0 6px rgba(27, 27, 27, 0.5);
+  z-index: 5;
+}
+
+/* Empty & stats */
+.empty{padding:16px; color:var(--muted)}
+.hidden{display:none}
+.stats-bar{
+  position: sticky; bottom: 0; left: 0; right: 0;
+  display:flex; align-items:center; gap:16px; 
+  justify-content:flex-end;
+  padding:10px 0 0 0; 
+  color:var(--muted);
+}
+.stats-bar span { margin: 0 16px; }
+.stats-bar strong { font-weight: 600; color: #333; }
+
+.app-footer{
+  border-top:1px solid var(--border); padding:10px 20px; color:var(--muted);
+}
+
+/* ===== Detail Overlay ===== */
+.detail-overlay{
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center;
+  background: rgba(15,16,22,0.55);
+  backdrop-filter: blur(2px);
+}
+.detail-overlay.hidden{ display:none; }
+
+.detail-card{
+  grid-template-columns: 0.9fr 1.1fr; /* ← 이미지:텍스트 비율 반대로 */
+  height: min(88vh, 880px); 
+  width: min(1200px, 94vw);
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px;
+  padding: 16px;
+  animation: detailIn .22s ease;
+}
+@keyframes detailIn{
+  from{ opacity:0; transform: translateY(6px) scale(.98) }
+  to{ opacity:1; transform: translateY(0) scale(1) }
+}
+
+/* 좌측 미디어 */
+.detail-media{ 
+  position: relative; 
+  border:1px solid var(--border); 
+  border-radius: 12px; 
+  overflow: hidden; 
+  background:#f7f7f7;
+}
+.media-viewport{ width:100%; height:100%; overflow:hidden; cursor: grab; }
+.media-viewport:active{ cursor: grabbing; }
+#detail-image{ width:100%; height:100%; object-fit: contain; transform-origin: center center; }
+.media-hint{ position:absolute; left:12px; bottom:10px; font-size:12px; color:#666; background:rgba(255,255,255,.85); padding:4px 8px; border-radius:999px; }
+
+/* 우측 본문 */
+.detail-body{ display:flex; flex-direction:column; gap:12px; height:100%; }
+.detail-topbar{ display:flex; justify-content:flex-end; }
+.detail-title{ margin:4px 0 0; font-size:20px; line-height:1.25; }
+.detail-meta{ display:flex; gap:10px; color:#666; font-size:13px; }
+.chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+.chip{ padding:4px 8px; border-radius:999px; background:#f4f4f4; border:1px solid #e6e6e6; font-size:12px; }
+.detail-desc{ 
+  overflow:auto; 
+  padding-right:6px; 
+  line-height:1.55; 
+  font-size:14px; 
+  max-height: 40vh;
+}
+.detail-nav{ margin-top:auto; display:flex; gap:8px;
+  display: none; /* (이전 UI는 제거) */
+}
+.btn-ghost{ background:#f4f4f4; border:1px solid #e6e6e6; color:#222; padding:8px 10px; border-radius:8px; cursor:pointer; }
+.btn-ghost:hover{ background:#fff; }
+
+/* 토픽 막대 */
+.detail-bars h4{ margin:8px 0 4px; font-size:13px; color:#666; }
+#detail-bars-wrap{ display:flex; flex-direction:column; gap:6px; }
+.detail-bar{ display:flex; align-items:center; gap:8px; }
+.detail-bar .label{ width:92px; font-size:12px; color:#555; }
+.detail-bar .track{ height:8px; background:#f2f2f2; border-radius:4px; flex:1; position:relative; overflow:hidden; }
+.detail-bar .fill{ position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:4px; }
+
+/* 설명문 키워드 하이라이트 */
+.detail-desc mark{
+  background: #fff2a8; padding:0 2px; border-radius:3px;
+}
+
+/* 반응형 */
+@media (max-width: 980px){
+  .detail-card{ grid-template-columns: 1fr; height: 84vh; }
+  .media-hint{ display:none; }
+}
+
+/* (이전 카드/검색 UI는 제거) */
+.controls{display:none}
+.doc-grid,.doc{display:none}
+
+
+
+/* 하이라이트 공통 스타일 (밑줄 제거) */
+.detail-desc mark{
+  padding: 0 3px;
+  border-radius: 4px;
+  background: transparent;   /* 개별 토픽 색이 들어감 */
+  box-shadow: none;
+  border: 0;
+}
+
+
+/* 토픽별 배경색: 40% (hex alpha 66) */
+
+mark[data-topic]{
+  padding: 0 .15em;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.detail-desc mark[data-topic="Military"],  .detail-title mark[data-topic="Military"]  { background: #FA846866; }
+.detail-desc mark[data-topic="Society"],   .detail-title mark[data-topic="Society"]   { background: #53ADDE66; }
+.detail-desc mark[data-topic="Political"], .detail-title mark[data-topic="Political"] { background: #FFC97066; }
+.detail-desc mark[data-topic="Religion"],  .detail-title mark[data-topic="Religion"]  { background: #68C89E66; }
+.detail-desc mark[data-topic="Business"],  .detail-title mark[data-topic="Business"]  { background: #6886C866; }
+.detail-desc mark[data-topic="Other"],     .detail-title mark[data-topic="Other"]     { background: #B0B0B066; }
+
+
+
+/* 사이드패널 상단 툴바 (Topics 위) */
+.side-toolbar{
+  display:flex;
+  justify-content:flex-end; /* 오른쪽 정렬 */
+  margin-bottom:8px;
+}
+
+/* 토글 버튼(텍스트는 그대로 “Hide Other”) */
+.btn.btn-toggle{
+  background:#f5f5f5;
+  border:1px solid #e0e0e0;
+  font-weight:600;
+}
+.btn.btn-toggle.active{
+  outline:2px solid #000;    /* 상태표시만, 텍스트는 그대로 */
+}
+/* 토픽 버튼 아래에 붙는 토글 바 */
+.side-toolbar.under-topics{
+  display:flex;
+  justify-content:flex-start;   /* 왼쪽 정렬 (원하면 flex-end) */
+  gap:8px;
+  margin-top:8px;               /* 위칸과 간격 */
+}
+
+.btn.btn-toggle{ background:#f5f5f5; border:1px solid #e0e0e0; font-weight:600; }
+.btn.btn-toggle.active{ outline:2px solid #000; }
+
+
+.meta { display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin:6px 0 10px; }
+.year { font-weight:600; color:#666; margin-right:6px; }
+
+.chips { display:flex; flex-wrap:wrap; gap:6px; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; line-height:1; border:1px solid #e6e6e6; background:#f7f7f7; color:#333; }
+.chip-outline { background:#fff; border-color:#ddd; color:#555; }
+
+/* 공통 */
+/* 버튼 active/디밍 */
+.btn-row .btn{
+  transition: all .2s ease;
+  box-shadow: none;
+  opacity: 1;
+  outline: none;
+}
+.btn.active{ outline: none !important; }
+.btn-row .btn.active{
+  background:#fff;
+  border-color:#e0e0e0;
+  box-shadow: 0 6px 14px rgba(0,0,0,.22);
+  opacity: 1;
+}
+.btn-row .btn.dimmed{
+  opacity: .45;
+  filter: blur(.3px);
+}
+.btn:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,0,0,.18);
+}
+
+/* 디테일 네비/힌트 숨김(원하면 유지) */
+.detail-nav,
+.media-hint{ display:none !important; }
+
+/* 디테일 카드 프레임 클리핑 */
+.detail-card{ overflow:hidden; }
+.media-viewport{ 
+  border-radius:12px; 
+  overflow:hidden; 
+  pointer-events: none;
+}
+
+/* 툴팁 타이포 살짝 정리 */
+.tip .t1{ font-weight:600; margin-bottom:3px; font-size:12px; }
+.tip .t2{ font-size:11px; color:#cbd3e1; }
+.tip .t3{ font-size:11px; color:#cbd3e1; line-height:1.4; }
