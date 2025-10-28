@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Language Within Papers — Mosaic View</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <link rel="stylesheet" href="main.css" />
+</head>
+<body>
+  <div id="tooltip" class="tip hidden"></div>
+
+  <header class="app-header">
+    <h1>Language Within Papers</h1>
+    <p class="subtitle">Mosaic prototype • 1770–1810</p>
+  </header>
+
+  <main class="container">
+    <!-- 좌: 모자이크 -->
+    <section class="mosaic-wrap">
+      <div id="mosaic" class="grid"></div>
+      <div id="empty" class="empty hidden">No results.</div>
+
+      <div class="stats-bar">
+        <span><strong>Shown</strong>: <span id="shown-count">0</span></span>
+        <span><strong>Total</strong>: <span id="total-count">0</span></span>
+      </div>
+    </section>
+
+    <!-- 우: 패널 (토픽/레전드) -->
+    <aside class="panel right">
+      <section>
+        <h2>Topics</h2>
+        <div id="topic-buttons" class="btn-row"></div>
+      </section>
+
+      <section class="legend">
+        <div class="legend-head">
+          <h2 id="legend-title">Subcategories</h2>
+        </div>
+        <div id="canon-list" class="canon-list"></div>
+      </section>
+    </aside>
+  </main>
+
+  <!-- ▼▼▼ Detail Overlay (타일 클릭 시 뜨는 전체 보기) ▼▼▼ -->
+  <div id="detail-overlay" class="detail-overlay hidden" role="dialog" aria-modal="true" aria-label="Document detail">
+    <div class="detail-card">
+      <!-- 좌: 이미지/줌 -->
+      <div class="detail-media">
+        <div class="media-viewport">
+          <img id="detail-image" alt="" />
+        </div>
+        <div class="media-hint">Scroll/Wheel to zoom · Drag to pan · Esc to close</div>
+      </div>
+
+      <!-- 우: 텍스트 -->
+      <div class="detail-body">
+        <div class="detail-topbar">
+          <button id="detail-close" class="btn-ghost" aria-label="Close">✕</button>
+        </div>
+
+          <h3 id="detail-title" class="detail-title">Untitled</h3>
+          <div class="detail-meta">
+          <span id="detail-year"></span>
+          <span id="detail-topics" class="chip-row"></span>
+           <!-- ⬇️ 새로 추가 -->
+          <span id="detail-csvtopic" class="chip chip-outline" hidden></span>
+        </div>
+
+        <div id="detail-desc" class="detail-desc"></div>
+
+        <div class="detail-bars">
+          <h4>Topics mix</h4>
+          <div id="detail-bars-wrap"></div>
+        </div>
+
+        <div class="detail-nav">
+          <button id="detail-prev" class="btn">&larr; Prev</button>
+          <button id="detail-next" class="btn">Next &rarr;</button>
+          <button id="detail-copy" class="btn-ghost">Copy link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ▲▲▲ Detail Overlay ▲▲▲ -->
+
+  <footer class="app-footer">
+    <small>© Major Studio — mosaic prototype</small>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
