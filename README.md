@@ -2,8 +2,7 @@
 
 ## Author
 **Saehun Kim** (he/him)  
-📧 kims631@newschool.edu  
-🔗 GitHub: [@hoonkim0123](https://github.com/hoonkim0123)
+kims631@newschool.edu  
 
 ## Project Overview
 
