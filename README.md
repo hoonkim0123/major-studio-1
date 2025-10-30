@@ -19,6 +19,7 @@ The interactive interface allows users to filter and explore recurring terms, un
 
 Language patterns in revolutionary documents
 
-## Collection/Data
+## Data
 
-- **Primary Source**: Hugging Face Repository - https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections
+- **Hugging Face Repository**: https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections
+- **Smithsonian Collections Search**: https://collections.si.edu/search/
