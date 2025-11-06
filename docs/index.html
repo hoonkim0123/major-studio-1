@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Paper Trail - Language Within Papers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- D3 v7 -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <link rel="stylesheet" href="main.css" />
+</head>
+<body>
+<!-- 🆕 Landing Page -->
+  <div id="landing" class="landing">
+    <section class="hero">
+      <h1 class="title serif-title">Paper Trail</h1>
+      <p class="subtitle">Language Within the American Revolution (1770–1810)</p>
+      <div class="scroll-cue">↓ Scroll</div>
+    </section>
+
+    <section class="about">
+      <img id="about-slideshow" src="" alt="Archive document" class="about-slideshow">
+      <h2>What is Paper Trail</h2>
+      <p>
+        Paper Trail reads hundreds of Revolutionary-era documents
+        —letters, pamphlets, and broadsides—to trace how vocabularies of war, politics, society, business, and religion evolved.
+      </p>
+    </section>
+
+    <section class="howto">
+      <img src="data/images/LandingPage_3.svg" alt="How to read illustration" class="howto-illustration">
+      <h2>How to Read</h2>
+      <p>
+        Each tile is a document. Color shows topic; 
+        layout follows time (1770–1810). Hover to preview and click to open details.
+      </p>
+    </section>
+
+    <button id="btn-explore">Explore Paper Trail</button>
+  </div>
+  <!-- 글로벌 툴팁 -->
+  <div id="tooltip" class="tip hidden"></div>
+
+  <main class="container">
+    <!-- 좌: 모자이크 -->
+    <section class="mosaic-wrap">
+      <div id="mosaic" class="grid"></div>
+      <div id="empty" class="empty hidden">No results.</div>
+
+      <div class="stats-bar">
+        <span><strong>Shown</strong>: <span id="shown-count">0</span></span>
+        <span><strong>Total</strong>: <span id="total-count">0</span></span>
+      </div>
+    </section>
+
+    <!-- 우: 패널 (토픽/레전드) -->
+    <aside class="panel right">
+      <section class="color-legend">
+        <h3>Topics</h3>
+        <div class="legend-items">
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #FA8468;"></span>
+            <span>Military</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #53ADDE;"></span>
+            <span>Society</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #FFC970;"></span>
+            <span>Political</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #68C89E;"></span>
+            <span>Religion</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #6886C8;"></span>
+            <span>Business</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #888888;"></span>
+            <span>Other</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Order</h2>
+        <div class="side-toolbar">
+          <button class="btn" id="btn-chrono">Chrono</button>
+          <button class="btn" id="btn-topic">Topic</button>
+          <button class="btn active" id="btn-random">Random</button>
+        </div>
+      </section>
+      
+      <section>
+        <h2>Topics</h2>
+        <div id="topic-buttons" class="btn-row"></div>
+      </section>
+
+      <section class="legend">
+        <div class="legend-head">
+          <h2 id="legend-title">Subcategories</h2>
+        </div>
+        <div id="canon-list" class="canon-list"></div>
+      </section>
+    </aside>
+
+  </main>
+
+  <!-- ▼▼▼ Detail Overlay (타일 클릭 시 뜨는 전체 보기) ▼▼▼ -->
+  <div id="detail-overlay" class="detail-overlay hidden" role="dialog" aria-modal="true" aria-label="Document detail">
+    <div class="detail-card">
+      <!-- 좌: 이미지/줌 -->
+      <div class="detail-media">
+        <div class="media-viewport">
+          <img id="detail-image" alt="" />
+        </div>
+      </div>
+
+      <!-- 우: 텍스트 -->
+      <div class="detail-body">
+        <div class="detail-topbar">
+          <button id="detail-close" class="btn-ghost" aria-label="Close">✕</button>
+        </div>
+
+        <h3 id="detail-title" class="detail-title">Untitled</h3>
+        <div class="detail-meta" id="detail-year"></div>
+
+        <!-- 필드별 섹션 -->
+        <div class="detail-fields">
+          <div id="detail-people" class="field-section hidden"></div>
+          <div id="detail-collection" class="field-section hidden"></div>
+          <div id="detail-type" class="field-section hidden"></div>
+        </div>
+
+        <!-- 메인 설명 -->
+        <div id="detail-desc" class="detail-desc"></div>
+
+        <!-- 토픽 믹스 -->
+        <div class="detail-bars">
+          <h4>Topics mix</h4>
+          <div id="detail-bars-wrap"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- ▲▲▲ Detail Overlay ▲▲▲ -->
+
+  <footer class="app-footer">
+    <small>Data - https://huggingface.co/RevolutionCrossroads/datasets</small>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
