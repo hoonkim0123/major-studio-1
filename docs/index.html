@@ -35,6 +35,25 @@
       </p>
     </section>
 
+    <!-- 추가: 색상 안내 섹션 -->
+    <section class="howto howto-color">
+      <!-- <img src="data/images/LandingLegend.svg" alt="Legend example" class="howto-illustration"> -->
+      <h2>Color Guide</h2>
+      <p>
+        Documents are color-coded by topic so you can quickly see each document's primary theme.
+        Colors map to:
+      </p>
+
+      <div class="legend-items mini-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#FA8468"></span><span>Military</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#53ADDE"></span><span>Society</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#FFC970"></span><span>Political</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#68C89E"></span><span>Religion</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#6886C8"></span><span>Business</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#888888"></span><span>Other</span></div>
+      </div>
+    </section>
+
     <button id="btn-explore">Explore Paper Trail</button>
   </div>
   <!-- 글로벌 툴팁 -->
@@ -49,13 +68,14 @@
       <div class="stats-bar">
         <span><strong>Shown</strong>: <span id="shown-count">0</span></span>
         <span><strong>Total</strong>: <span id="total-count">0</span></span>
+        <button id="btn-random-toggle" class="btn small">Random</button>
       </div>
     </section>
 
     <!-- 우: 패널 (토픽/레전드) -->
     <aside class="panel right">
       <section class="color-legend">
-        <h3>Topics</h3>
+        <h3>Color Guide</h3>
         <div class="legend-items">
           <div class="legend-item">
             <span class="legend-dot" style="background: #FA8468;"></span>
@@ -84,14 +104,7 @@
         </div>
       </section>
 
-      <section>
-        <h2>Order</h2>
-        <div class="side-toolbar">
-          <button class="btn" id="btn-chrono">Chrono</button>
-          <button class="btn" id="btn-topic">Topic</button>
-          <button class="btn active" id="btn-random">Random</button>
-        </div>
-      </section>
+
       
       <section>
         <h2>Topics</h2>
@@ -113,8 +126,15 @@
     <div class="detail-card">
       <!-- 좌: 이미지/줌 -->
       <div class="detail-media">
-        <div class="media-viewport">
-          <img id="detail-image" alt="" />
+        <div class="media-main">
+          <div id="page-indicator" class="page-indicator">1 / 1</div>
+          <div class="media-viewport" id="media-viewport">
+            <img id="detail-image" alt="" />
+          </div>
+        </div>
+        <!-- 🆕 Thumbnail Gallery -->
+        <div class="media-thumbnails" id="media-thumbnails">
+          <!-- 썸네일들이 JS로 동적 생성됨 -->
         </div>
       </div>
 
@@ -129,19 +149,26 @@
 
         <!-- 필드별 섹션 -->
         <div class="detail-fields">
-          <div id="detail-people" class="field-section hidden"></div>
-          <div id="detail-collection" class="field-section hidden"></div>
-          <div id="detail-type" class="field-section hidden"></div>
+          <div id="detail-people" class="field-section hidden">
+            <h4>Associated Person</h4>
+            <div id="detail-people-content"></div>
+          </div>
+
+          <div id="detail-collection" class="field-section hidden">
+            <h4>Source / Collection</h4>
+            <div id="detail-collection-content"></div>
+          </div>
+
+          <!-- Identifiers / Rights / Transcription sections removed per user request (kept in JS guards) -->
         </div>
-
-        <!-- 메인 설명 -->
-        <div id="detail-desc" class="detail-desc"></div>
-
         <!-- 토픽 믹스 -->
         <div class="detail-bars">
           <h4>Topics mix</h4>
           <div id="detail-bars-wrap"></div>
         </div>
+
+        <!-- 메인 설명 -->
+        <div id="detail-desc" class="detail-desc"></div>
 
       </div>
     </div>
@@ -149,7 +176,7 @@
   <!-- ▲▲▲ Detail Overlay ▲▲▲ -->
 
   <footer class="app-footer">
-    <small>Data - https://huggingface.co/RevolutionCrossroads/datasets</small>
+    <small><b>Data</b> - https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections</small>
   </footer>
 
   <script src="main.js"></script>

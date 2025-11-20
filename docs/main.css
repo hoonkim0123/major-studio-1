@@ -69,6 +69,27 @@ body{
 .tip .t3{ color:#cbd3e1; }
 .tip-thumb{ display:block; width:80px; height:auto; margin-top:6px; border-radius:6px; }
 
+/* 🆕 Page Tabs in Tooltip */
+.page-tabs {
+  display: flex;
+  gap: 3px;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.page-tabs .tab {
+  display: inline-block;
+  min-width: 16px;
+  height: 4px;
+  background: #4a5568;
+  border-radius: 2px;
+  font-size: 8px;
+  color: #9aa3b2;
+  text-align: center;
+  line-height: 1;
+  padding: 0 2px;
+}
+
 /* Topic & Legend */
 .panel h2{
   margin:0 0 6px 0; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);
@@ -262,6 +283,23 @@ body{
   padding: 16px;
   animation: detailIn .22s ease;
 }
+
+/* 🆕 No Image Mode - 텍스트 중심 레이아웃 */
+.detail-overlay.no-image-mode .detail-media {
+  display: none;
+}
+
+.detail-overlay.no-image-mode .detail-card {
+  grid-template-columns: 1fr;
+  max-width: 800px;
+  width: min(800px, 90vw);
+  padding: 24px;
+}
+
+.detail-overlay.no-image-mode .detail-body {
+  max-width: 100%;
+  padding: 0;
+}
 @keyframes detailIn{
   from{ opacity:0; transform: translateY(6px) scale(.98) }
   to{ opacity:1; transform: translateY(0) scale(1) }
@@ -274,11 +312,137 @@ body{
   border-radius: 12px; 
   overflow: hidden; 
   background:#f7f7f7;
+  display: flex;
+  flex-direction: column;
 }
-.media-viewport{ width:100%; height:100%; overflow:hidden; cursor: grab; }
-.media-viewport:active{ cursor: grabbing; }
-#detail-image{ width:100%; height:100%; object-fit: contain; transform-origin: center center; }
+
+.media-main {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.media-viewport{ 
+  width:100%; 
+  height:100%; 
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-viewport.zoomed {
+  overflow: auto;
+  cursor: grab;
+}
+
+.media-viewport.zoomed:active {
+  cursor: grabbing;
+}
+
+/* 🆕 Thumbnail Gallery */
+.media-thumbnails {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: rgba(0,0,0,0.03);
+  border-top: 1px solid var(--border);
+  min-height: 80px;
+  max-height: 100px;
+}
+
+.media-thumbnails.hidden {
+  display: none;
+}
+
+.thumb-item {
+  flex-shrink: 0;
+  width: 80px;
+  height: 60px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.thumb-item:hover {
+  border-color: #aaa;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.thumb-item.active {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+.thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#detail-image{ 
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain; 
+  transition: transform 0.3s ease;
+  cursor: zoom-in;
+  display: block;
+}
+#detail-image.zoomed {
+  transform: scale(2);
+  cursor: zoom-out;
+  max-width: none;
+  max-height: none;
+  width: auto;
+  height: auto;
+}
 .media-hint{ position:absolute; left:12px; bottom:10px; font-size:12px; color:#666; background:rgba(255,255,255,.85); padding:4px 8px; border-radius:999px; }
+
+/* 🆕 Image Slider Navigation */
+.nav-arrow {
+  display: none !important; /* 완전히 숨김 */
+}
+
+.nav-arrow:hover {
+  background: rgba(0,0,0,0.7);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-arrow.prev {
+  left: 16px;
+}
+
+.nav-arrow.next {
+  right: 16px;
+}
+
+.nav-arrow:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed;
+}
+
+/* Page Indicator */
+.page-indicator {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 10;
+}
 
 /* 우측 본문 */
 .detail-body{ 
@@ -294,6 +458,10 @@ body{
 .detail-meta{ display:flex; flex-direction:column; gap:4px; color:#666; font-size:13px; }
 .detail-meta .year{ font-weight:600; color:#333; }
 .detail-meta .topic-line{ font-size:12px; color:#888; border-bottom:1px solid #e6e6e6; padding-bottom:6px; }
+
+/* small badge for externally assigned topic (e.g., Smithsonian) */
+.meta-note { margin-top:6px; }
+.note-link { margin-top:6px; }
 .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
 .chip{ padding:4px 8px; border-radius:999px; background:#f4f4f4; border:1px solid #e6e6e6; font-size:12px; }
 .detail-desc{ 
@@ -333,11 +501,32 @@ body{
 }
 
 .field-section h4 {
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field-section p {
+  margin: 0 0 4px 0;
+  line-height: 1.5;
+}
+
+.field-section p:last-child {
+  margin-bottom: 0;
+}
+
+.field-section p.meta-detail {
+  font-size: 12px;
+  color: #666;
+  padding: 3px 0;
+}
+
+.field-section em {
+  font-style: italic;
+  color: #777;
   letter-spacing: 0.8px;
 }
 
@@ -402,6 +591,8 @@ body{
   margin-bottom:12px;
   gap:5px;
 }
+/* small button variant in stats bar */
+.stats-bar .btn.small { font-size:0.85rem; padding:6px 10px; margin-left:8px; }
 
 
 .meta { display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin:6px 0 10px; }
@@ -426,7 +617,7 @@ body{
 .media-viewport{ 
   border-radius:12px; 
   overflow:hidden; 
-  pointer-events: none;
+  pointer-events: auto; /* 클릭 가능하게 변경 */
 }
 
 /* 툴팁 타이포 살짝 정리 */
@@ -542,4 +733,14 @@ body{
   object-fit: contain;
   display: block;
 }
+
+
+/* Mini legend styles used on the landing How-to-Read color guide */
+.howto-color { padding: 32px 0; }
+.howto-color .howto-illustration { height: 120px; margin-bottom: 0.6rem; }
+.howto-color h2 { margin: 0.4rem 0 0.6rem; }
+.mini-legend { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:12px; column-gap:6px;}
+.mini-legend .legend-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#333; padding:6px 8px; }
+.mini-legend .legend-dot { width:14px; height:14px; border-radius:3px; display:inline-block; }
+
 

@@ -1,0 +1,6 @@
+# Local Smithsonian API key (do not commit)
+smithsonianapi.txt
+
+# Node / env
+node_modules/
+.env
