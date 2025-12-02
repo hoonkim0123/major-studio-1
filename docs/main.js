@@ -127,9 +127,9 @@ function buildImageCandidates(doc){
 /* ===================== 1) Canonical Groups (서브카테고리) ===================== */
 const CANONICAL_GROUPS = {
   Military: {
-    army: ["army","regiment","troop","troops","militia","infantry","dragoons","cavalry","company","battalion","soldier","enlist","corps","navy"],
+    army: ["army","regiment","troop","troops","militia","infantry","dragoons","cavalry","company","battalion","soldier","enlist","corps","navy","medic","marine"],
     battle: ["battle","campaign","engagement","skirmish","siege","victory","defeat","combat","encounter"],
-    command: ["general","colonel","captain","major","lieutenant","commander","officer","orders","dispatch","command","leadership"],
+    command: ["general","colonel","captain","major","lieutenant","commander","officer","orders","dispatch","command","leadership","Commodore"],
     fortification: ["fort","garrison","barracks","artillery","arsenal","munition","battery","encampment"],
     defense: ["defense","defence"]
   },
@@ -137,17 +137,17 @@ const CANONICAL_GROUPS = {
     family: ["family","marriage","wives","husband","child","children","women","household","kin","domestic","widow"],
     education: ["education","school","academy","college","apprentice","tutorial","study","lesson","student","teacher"],
     labor: ["work","labor","occupation","craft","tradecraft","artisan","guild","employment","profession"],
-    community: ["community","charity","custom","fashion","festival","association","society","public","people"],
-    slavery: ["slavery","slave","slaves","enslaved","enslavement","bondage"]
+    community: ["community","charity","custom","fashion","festival","association","society","public",],
+    slavery: ["slavery","slave","slaves","enslaved","enslavement","bondage","slavers","slaver"]
   },
   Political: {
-    government: ["congress","senate","assembly","committee","governor","president","crown","parliament","ministry","council","authority","administration"],
+    government: ["congress","senate","assembly","committee","governor","president","crown","parliament","ministry","council","authority","administration","Courthouse","deed"],
     law: ["law","act","bill","statute","ordinance","charter","code","resolution","decree","legislation","constitution"],
     election: ["election","vote","ballot","suffrage","poll","candidate","representation","constituent"],
-    diplomacy: ["treaty","alliance","proclamation","declaration","embassy","negotiation","agreement","commission"],
+    diplomacy: ["treaty","alliance","proclamation","declaration","embassy","negotiation","agreement","commission","consul"],
     revolution: ["revolution","revolutionary","rebellion","rebels"],
     independence: ["independence","independent"],
-    rights: ["rights","liberty","freedom","privilege","privileges"],
+    rights: ["rights","liberty","freedom","privilege","privileges","taxation","taxes","tax","citizenship","taxed"],
     constitution: ["constitution","constitutional","amendment","amendments","ratify","ratified","ratification"],
     confederation: ["confederation","federal","federalist","union"],
     patriot: ["patriot","patriots"]
@@ -161,7 +161,7 @@ const CANONICAL_GROUPS = {
     doctrine: ["faith","grace","salvation","providence","piety","godliness","sanctification"]
   },
   Business: {
-    trade: ["trade","merchant","merchandise","tariff","duty","import","export","commerce","business","industry"],
+    trade: ["trade","merchant","merchandise","tariff","duty","import","export","commerce","business","industry","reciept"],
     market: ["market","goods","sale","auction","price","retail","wholesale","supply","demand","produce"],
     shipping: ["shipment","cargo","freight","warehouse","inventory","consignment","vessel","harbor","port","navigation","dock"],
     finance: ["account","invoice","ledger","receipt","credit","debt","currency","bank","note","notes","bond","loan","payment","shilling","shillings","pence","penny","pennies","pound","pounds","banknote","banknotes","specie","bill","bills","billofcredit","dollars","dollar"],
@@ -184,7 +184,16 @@ const PHRASE_LEXICON = {
   "benjamin franklin":         { topic:"Political", canonical:"government" },
   "continental army":          { topic:"Military",  canonical:"army" },
   "state militia":             { topic:"Military",  canonical:"army" },
-  "regular troops":            { topic:"Military",  canonical:"army" }
+  "regular troops":            { topic:"Military",  canonical:"army" },
+  "baptismal certificate":     { topic:"Religion",  canonical:"church"  },
+  "Psalms of David":           { topic:"Religion",  canonical:"scripture"  },
+  "Kings People":              { topic:"Political", canonical:"government"  },
+  "War Office":                 { topic:"Military",  canonical:"army" },
+  "Consul General":            { topic:"Political", canonical:"diplomacy" },
+  "rate folded letter":        { topic:"Political", canonical:"government" },
+  "Invitation to Ball":    { topic:"Society",   canonical:"community"  },
+  "tiered rate systems": { topic:"Political", canonical:"government" },
+  "Royal Standard English Dictionary": { topic:"Society", canonical:"education" },
 };
 
 /* ===== LEXICON 빌드 ===== */
@@ -833,12 +842,36 @@ async function loadCSV(){
     const metadata = doc.metadata || {};
     const rawRow = rawMap.get(doc.id) || {};
     
-    // 🔍 키워드 분석용 통합 텍스트: cleaned description + 원본 notes 전체
-    const rawNotes = rawRow.notes || "";
+    // 🔍 CSV의 topic 컬럼에서 subject/related_event 추출
+    // topic 컬럼에 Subject 정보가 JSON 형태로 저장되어 있음
+    if (rawRow.topic && !metadata.subject) {
+      try {
+        const parsed = typeof rawRow.topic === 'string' ? JSON.parse(rawRow.topic) : rawRow.topic;
+        if (parsed.Subject) metadata.subject = parsed.Subject;
+        if (parsed.subject) metadata.subject = parsed.subject;
+        if (parsed['related event']) metadata.related_event = parsed['related event'];
+        if (parsed.related_event) metadata.related_event = parsed.related_event;
+      } catch (e) {
+        // Not JSON, ignore
+      }
+    }
+    
+    // notes 컬럼에서도 추가 정보 추출 (location 등)
+    if (rawRow.notes && !metadata.location) {
+      try {
+        const parsed = typeof rawRow.notes === 'string' ? JSON.parse(rawRow.notes) : rawRow.notes;
+        if (parsed.Location) metadata.location = parsed.Location;
+        if (parsed.location) metadata.location = parsed.location;
+      } catch (e) {
+        // Not JSON, ignore
+      }
+    }
+    
+    // 키워드 분석용 통합 텍스트
     const _text = [
       doc.title, doc.title,  // title 2x for weighting
       doc.description,
-      rawNotes,  // 원본 notes (JSON 포함된 긴 텍스트)
+      rawRow.notes || "",  // 원본 notes
       rawRow.title || "",
       rawRow.topic || "",
       rawRow.name || "",
@@ -870,7 +903,7 @@ async function loadCSV(){
       filename: doc.thumbnail || "",
       topic: metadata.topic || rawRow.topic || "",
       date: metadata.date_raw || "",
-      notes: rawNotes || doc.description || "",  // 원본 notes 우선
+      notes: rawRow.notes || doc.description || "",  // 원본 notes 우선
       summary: doc.description || ""
     };
   });
@@ -1178,6 +1211,7 @@ async function renderDetail(doc){
   const barsWrap = $("#detail-bars-wrap");
   
   // 필드 섹션들
+  const detailSubject = $("#detail-subject");
   const detailPeople = $("#detail-people");
   const detailCollection = $("#detail-collection");
   const detailType = $("#detail-type");
@@ -1384,6 +1418,58 @@ async function renderDetail(doc){
   year.innerHTML = metaHTML;
 
   // === 필드별 섹션 렌더링 ===
+  
+  // 0. Subject (from metadata)
+  let subjectInfo = [];
+  if (metadata.subject) {
+    try {
+      const parsed = typeof metadata.subject === 'string' ? JSON.parse(metadata.subject) : metadata.subject;
+      if (typeof parsed === 'object' && parsed !== null) {
+        // Extract all values from the Subject object
+        Object.entries(parsed).forEach(([key, value]) => {
+          if (value && String(value).trim()) {
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            subjectInfo.push(`${label}: ${value}`);
+          }
+        });
+      } else if (typeof parsed === 'string') {
+        subjectInfo.push(parsed);
+      }
+    } catch (e) {
+      // If not JSON, treat as plain string
+      if (typeof metadata.subject === 'string' && metadata.subject.trim()) {
+        subjectInfo.push(metadata.subject);
+      }
+    }
+  }
+  
+  // Also check for related_event
+  if (metadata.related_event) {
+    try {
+      const parsed = typeof metadata.related_event === 'string' ? JSON.parse(metadata.related_event) : metadata.related_event;
+      if (typeof parsed === 'string' && parsed.trim()) {
+        subjectInfo.push(`Related Event: ${parsed}`);
+      } else if (Array.isArray(parsed)) {
+        parsed.forEach(ev => {
+          if (ev && String(ev).trim()) subjectInfo.push(`Related Event: ${ev}`);
+        });
+      }
+    } catch (e) {
+      if (typeof metadata.related_event === 'string' && metadata.related_event.trim()) {
+        subjectInfo.push(`Related Event: ${metadata.related_event}`);
+      }
+    }
+  }
+  
+  if (subjectInfo.length > 0) {
+    const subjectContent = $("#detail-subject-content");
+    if (subjectContent) {
+      subjectContent.innerHTML = subjectInfo.map(s => `<p>${escapeHtml(s)}</p>`).join('');
+    }
+    if (detailSubject) detailSubject.classList.remove("hidden");
+  } else {
+    if (detailSubject) detailSubject.classList.add("hidden");
+  }
   
   // 1. 사람/이름 정보
   const peopleContent = $("#detail-people-content");
