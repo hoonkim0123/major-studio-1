@@ -2,6 +2,10 @@
 
 Revolutionary-era documents visualization project using data from the Smithsonian Institution.
 
+## Peoject Demo
+
+https://hoonkim0123.github.io/major-studio-1/
+
 ## Description
 
 This project visualizes how words circulated across different contexts during the American Revolutionary era rather than how they changed over time. By classifying each document by topic—**Military**, **Society**, **Political**, **Religion**, and **Business**—and analyzing keyword frequencies, the visualization reveals linguistic networks and patterns in revolutionary documents.

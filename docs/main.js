@@ -463,7 +463,7 @@ function computeTopicMix(doc, { topN = 3, includeOther = false } = {}){
 
 /* ===================== 7) 전역 상태 ===================== */
 let DOCS = [];
-let STATE = { topic:"All", canonical:null, hideOther:false, yearMin:1770, yearMax:1810 };
+let STATE = { topic:"All", canonical:null, hideOther:false, yearMin:1770, yearMax:1810, decade:"All" };
 STATE.view = "grid";
 STATE.selectedId = null;
 STATE.order = [];
@@ -520,9 +520,6 @@ function renderMosaic(){
     });
   }
 
-  $("#shown-count").textContent = sorted.length;
-  $("#total-count").textContent = DOCS.length;
-
   STATE.order = sorted.map(d => d.id);
 
   if (!sorted.length){ 
@@ -564,10 +561,21 @@ function renderMosaic(){
         ).join('')}${pageCount > 5 ? '<span class="tab">...</span>' : ''}</div>` 
       : '';
 
+    // 🆕 Multi-tag display (show dominant topic + other topics)
+    const domTopic = d.dominantTopic || "Other";
+    const topicHTML = `<div class="t3" style="font-size:11px; color:#cbd3e1; margin-top:4px;">${escapeHtml(domTopic)}</div>`;
+    
+    const otherTopics = (d.topics || []).filter(t => t !== domTopic && t !== "Other");
+    const multiTagHTML = otherTopics.length > 0 
+      ? `<div class="t4" style="font-size:10px; color:#999; margin-top:2px;">Also: ${escapeHtml(otherTopics.join(", "))}</div>` 
+      : '';
+
     const tipHTML = `
       <div class="t1">${d.title || "Untitled"}</div>
       <div class="t2">${d.year ? d.year : ""}</div>
       ${tabsHTML}
+      ${topicHTML}
+      ${multiTagHTML}
       ${imgTag}
     `;
 
@@ -579,10 +587,10 @@ function renderMosaic(){
     grid.appendChild(el);
   }
 
-  // Reflect sort mode on Random toggle (in stats bar)
+  // Reflect sort mode on Random toggle (in header)
   const randomBtn = document.getElementById('btn-random-toggle');
   if (randomBtn) {
-    randomBtn.className = 'btn small' + (STATE.sortMode === 'Random' ? ' active' : '');
+    randomBtn.className = 'btn-random' + (STATE.sortMode === 'Random' ? ' active' : '');
   }
 }
 
@@ -635,6 +643,44 @@ function renderTopicButtons(){
   if (activeBtn){
     allBtns.forEach(b=>{ if (b !== activeBtn) b.classList.add("dimmed"); });
   }
+}
+
+/* ===================== Decade Filter Buttons ===================== */
+function renderDecadeButtons(){
+  const wrap = $("#decade-buttons");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+
+  const decades = [
+    { label: "All", min: 1770, max: 1810 },
+    { label: "1770s", min: 1770, max: 1779 },
+    { label: "1780s", min: 1780, max: 1789 },
+    { label: "1790s", min: 1790, max: 1799 },
+    { label: "1800–1810", min: 1800, max: 1810 }
+  ];
+
+  const row = document.createElement("div");
+  row.className = "btn-row";
+  
+  decades.forEach(d => {
+    const btn = document.createElement("button");
+    const isActive = STATE.decade === d.label;
+    btn.className = "btn" + (isActive ? " active" : "");
+    btn.textContent = d.label;
+    
+    btn.onclick = () => {
+      STATE.decade = d.label;
+      STATE.yearMin = d.min;
+      STATE.yearMax = d.max;
+      renderDecadeButtons();
+      renderMosaic();
+      syncURL();
+    };
+    
+    row.appendChild(btn);
+  });
+  
+  wrap.appendChild(row);
 }
 
 /* ===================== 10) 레전드(서브카테) ===================== */
@@ -1656,6 +1702,15 @@ async function openDetail(id){
   syncURL();
   // Prevent background scrolling
   document.body.style.overflow = "hidden";
+  
+  // Update navigation button states
+  const prevBtn = $("#detail-prev");
+  const nextBtn = $("#detail-next");
+  if (prevBtn && nextBtn) {
+    const currentIndex = STATE.order.indexOf(STATE.selectedId);
+    prevBtn.disabled = currentIndex <= 0;
+    nextBtn.disabled = currentIndex >= STATE.order.length - 1;
+  }
 }
 function closeDetail(){
   $("#detail-overlay").classList.add("hidden");
@@ -1733,22 +1788,47 @@ async function main(){
   const skipLanding = urlParams.get('skip') === '1';
   
   // landing 표시 여부 결정
+  const mainHeader = document.querySelector('.main-header');
   if (hasVisited || skipLanding) {
     // 앱 표시
     if (landing) landing.style.display = 'none';
     if (app) app.style.display = 'flex';
+    if (mainHeader) mainHeader.style.display = 'flex';
   } else {
     // landing 표시
     if (landing) landing.style.display = 'block';
     if (app) app.style.display = 'none';
+    if (mainHeader) mainHeader.style.display = 'none';
   }
   
-  // Explore 버튼 클릭 시
+  // Explore 버튼 클릭 시 (hero & howto 섹션)
+  const enterProject = function() {
+    localStorage.setItem('pt_visited', 'true');
+    if (landing) landing.style.display = 'none';
+    if (app) app.style.display = 'flex';
+    const mainHeader = document.querySelector('.main-header');
+    if (mainHeader) mainHeader.style.display = 'flex';
+  };
+  
   if (btn) {
-    btn.addEventListener('click', function() {
-      localStorage.setItem('pt_visited', 'true');
-      if (landing) landing.style.display = 'none';
-      if (app) app.style.display = 'flex';
+    btn.addEventListener('click', enterProject);
+  }
+  
+  const btnFromHowto = document.getElementById('btn-enter-from-howto');
+  if (btnFromHowto) {
+    btnFromHowto.addEventListener('click', enterProject);
+  }
+  
+  // Back to Landing 버튼
+  const btnBack = document.getElementById('btn-back-to-landing');
+  if (btnBack) {
+    btnBack.addEventListener('click', function() {
+      if (landing) landing.style.display = 'block';
+      if (app) app.style.display = 'none';
+      const mainHeader = document.querySelector('.main-header');
+      if (mainHeader) mainHeader.style.display = 'none';
+      // 랜딩 페이지 맨 위로 스크롤
+      landing.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
   
@@ -1765,6 +1845,7 @@ async function main(){
 
   // 앱 초기화
   renderTopicButtons();
+  renderDecadeButtons();
   await loadCSV();
   renderLegend();
   renderMosaic();
@@ -1774,11 +1855,11 @@ async function main(){
   // Year range slider UI removed — no inputs to wire. Year filtering remains
   // controlled by `STATE.yearMin` / `STATE.yearMax` if needed programmatically.
 
-  // Random toggle wiring (moved to stats bar)
+  // Random toggle wiring (in header)
   const randomToggle = document.getElementById('btn-random-toggle');
   if (randomToggle){
     // set initial active state
-    randomToggle.className = 'btn small' + (STATE.sortMode === 'Random' ? ' active' : '');
+    randomToggle.className = 'btn-random' + (STATE.sortMode === 'Random' ? ' active' : '');
     randomToggle.addEventListener('click', ()=>{
       const enabled = randomToggle.classList.toggle('active');
       if (enabled){ setOrdering('Random'); }
@@ -1790,6 +1871,37 @@ async function main(){
   const closeBtn = $("#detail-close");
   if (closeBtn) {
     closeBtn.addEventListener("click", closeDetail);
+  }
+
+  // Detail navigation buttons (Previous/Next document)
+  const prevBtn = $("#detail-prev");
+  const nextBtn = $("#detail-next");
+  
+  function updateNavButtons() {
+    if (!STATE.selectedId || !prevBtn || !nextBtn) return;
+    const currentIndex = STATE.order.indexOf(STATE.selectedId);
+    prevBtn.disabled = currentIndex <= 0;
+    nextBtn.disabled = currentIndex >= STATE.order.length - 1;
+  }
+  
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      const currentIndex = STATE.order.indexOf(STATE.selectedId);
+      if (currentIndex > 0) {
+        openDetail(STATE.order[currentIndex - 1]);
+        updateNavButtons();
+      }
+    });
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      const currentIndex = STATE.order.indexOf(STATE.selectedId);
+      if (currentIndex < STATE.order.length - 1) {
+        openDetail(STATE.order[currentIndex + 1]);
+        updateNavButtons();
+      }
+    });
   }
 
   window.addEventListener("keydown", (ev)=>{

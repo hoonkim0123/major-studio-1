@@ -14,16 +14,22 @@
     <section class="hero">
       <h1 class="title serif-title">Paper Trail</h1>
       <p class="subtitle">Language Within the American Revolution (1770–1810)</p>
-      <div class="scroll-cue">↓ Scroll</div>
+      <button id="btn-explore" class="btn-enter">Enter the Project</button>
+      <div class="scroll-cue">↓ Scroll to learn more</div>
     </section>
 
     <section class="about">
-      <img id="about-slideshow" src="" alt="Archive document" class="about-slideshow">
-      <h2>What is Paper Trail</h2>
-      <p>
-        Paper Trail reads hundreds of Revolutionary-era documents
-        —letters, pamphlets, and broadsides—to trace how vocabularies of war, politics, society, business, and religion evolved.
-      </p>
+      <div class="about-content">
+        <div class="about-image-container">
+          <img id="about-slideshow" src="" alt="Archive document" class="about-slideshow">
+        </div>
+        <div class="about-text">
+          <h2>What is Paper Trail</h2>
+          <p>
+            Paper Trail analyzes hundreds of documents from the Revolutionary period—letters, pamphlets, petitions, and broadsides—to observe how vocabularies of war, politics, society, business, and religion shifted over time.
+          </p>
+        </div>
+      </div>
     </section>
 
     <section class="howto">
@@ -33,82 +39,36 @@
         Each tile is a document. Color shows topic; 
         layout follows time (1770–1810). Hover to preview and click to open details.
       </p>
+      <button id="btn-enter-from-howto" class="btn-enter" style="margin-top: 1.5rem;">Enter the Project</button>
     </section>
-
-    <!-- 추가: 색상 안내 섹션 -->
-    <section class="howto howto-color">
-      <!-- <img src="data/images/LandingLegend.svg" alt="Legend example" class="howto-illustration"> -->
-      <h2>Color Guide</h2>
-      <p>
-        Documents are color-coded by topic so you can quickly see each document's primary theme.
-        Colors map to:
-      </p>
-
-      <div class="legend-items mini-legend">
-        <div class="legend-item"><span class="legend-dot" style="background:#FA8468"></span><span>Military</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:#53ADDE"></span><span>Society</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:#FFC970"></span><span>Political</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:#68C89E"></span><span>Religion</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:#6886C8"></span><span>Business</span></div>
-        <div class="legend-item"><span class="legend-dot" style="background:#888888"></span><span>Other</span></div>
-      </div>
-    </section>
-
-    <button id="btn-explore">Explore Paper Trail</button>
   </div>
   <!-- 글로벌 툴팁 -->
   <div id="tooltip" class="tip hidden"></div>
+
+  <!-- 🆕 Main view header with subtitle -->
+  <header class="main-header">
+    <button id="btn-back-to-landing" class="btn-back" aria-label="Back to landing page">← Back</button>
+    <p class="main-subtitle">Tracing language across Revolutionary-era documents (1770–1810)</p>
+    <button id="btn-random-toggle" class="btn-random">Random Order</button>
+  </header>
 
   <main class="container">
     <!-- 좌: 모자이크 -->
     <section class="mosaic-wrap">
       <div id="mosaic" class="grid"></div>
       <div id="empty" class="empty hidden">No results.</div>
-
-      <div class="stats-bar">
-        <span><strong>Shown</strong>: <span id="shown-count">0</span></span>
-        <span><strong>Total</strong>: <span id="total-count">0</span></span>
-        <button id="btn-random-toggle" class="btn small">Random</button>
-      </div>
     </section>
 
     <!-- 우: 패널 (토픽/레전드) -->
     <aside class="panel right">
-      <section class="color-legend">
-        <h3>Color Guide</h3>
-        <div class="legend-items">
-          <div class="legend-item">
-            <span class="legend-dot" style="background: #FA8468;"></span>
-            <span>Military</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-dot" style="background: #53ADDE;"></span>
-            <span>Society</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-dot" style="background: #FFC970;"></span>
-            <span>Political</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-dot" style="background: #68C89E;"></span>
-            <span>Religion</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-dot" style="background: #6886C8;"></span>
-            <span>Business</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-dot" style="background: #888888;"></span>
-            <span>Other</span>
-          </div>
-        </div>
+      <section>
+        <h2>Filter by Topic</h2>
+        <div id="topic-buttons" class="btn-row"></div>
       </section>
 
-
-      
       <section>
-        <h2>Topics</h2>
-        <div id="topic-buttons" class="btn-row"></div>
+        <h2>Filter by Time Period</h2>
+        <div id="decade-buttons" class="btn-row"></div>
       </section>
 
       <section class="legend">
@@ -141,6 +101,10 @@
       <!-- 우: 텍스트 -->
       <div class="detail-body">
         <div class="detail-topbar">
+          <div class="detail-nav">
+            <button id="detail-prev" class="btn-nav" aria-label="Previous document">← Previous</button>
+            <button id="detail-next" class="btn-nav" aria-label="Next document">Next →</button>
+          </div>
           <button id="detail-close" class="btn-ghost" aria-label="Close">✕</button>
         </div>
 
@@ -176,7 +140,11 @@
   <!-- ▲▲▲ Detail Overlay ▲▲▲ -->
 
   <footer class="app-footer">
-    <small><b>Data</b> - https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections</small>
+    <small>
+      <b>Data Sources:</b> 
+      <a href="https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections" target="_blank" rel="noopener">Hugging Face Dataset</a> • 
+      <a href="https://www.si.edu/openaccess/devtools" target="_blank" rel="noopener">Smithsonian Open Access API</a>
+    </small>
   </footer>
 
   <script src="main.js"></script>
