@@ -161,7 +161,7 @@ const CANONICAL_GROUPS = {
     doctrine: ["faith","grace","salvation","providence","piety","godliness","sanctification"]
   },
   Business: {
-    trade: ["trade","merchant","merchandise","tariff","duty","import","export","commerce","business","industry","reciept"],
+    trade: ["trade","merchant","merchandise","tariff","duty","import","export","commerce","business","industry","reciept","merchants"],
     market: ["market","goods","sale","auction","price","retail","wholesale","supply","demand","produce"],
     shipping: ["shipment","cargo","freight","warehouse","inventory","consignment","vessel","harbor","port","navigation","dock"],
     finance: ["account","invoice","ledger","receipt","credit","debt","currency","bank","note","notes","bond","loan","payment","shilling","shillings","pence","penny","pennies","pound","pounds","banknote","banknotes","specie","bill","bills","billofcredit","dollars","dollar"],
@@ -180,6 +180,7 @@ const PHRASE_LEXICON = {
   "stamp act":                 { topic:"Political", canonical:"law" },
   "george washington":         { topic:"Political", canonical:"government" },
   "general washington":        { topic:"Military",  canonical:"army" },
+  "general edward hand":       { topic:"Military",  canonical:"army" },
   "united states":             { topic:"Political", canonical:"government" },
   "benjamin franklin":         { topic:"Political", canonical:"government" },
   "continental army":          { topic:"Military",  canonical:"army" },
@@ -194,6 +195,15 @@ const PHRASE_LEXICON = {
   "Invitation to Ball":    { topic:"Society",   canonical:"community"  },
   "tiered rate systems": { topic:"Political", canonical:"government" },
   "Royal Standard English Dictionary": { topic:"Society", canonical:"education" },
+  "William Henry Harrison": { topic:"Political", canonical:"government" },
+  "Way to Wealth or Poor Richard Improved": { topic:"Society", canonical:"education" },
+  "Valentine Card": { topic:"Society", canonical:"community" },
+  "naturalization certificate": { topic:"Political", canonical:"government" },
+  "Joel Barlow": { topic:"Political", canonical:"government" },
+  "levying of fines": { topic:"Political", canonical:"law" },
+  "account book": { topic:"Business", canonical:"finance" },
+  "Jasper Yeates": { topic:"Political", canonical:"government" },
+  "Deputy Post Master General,": { topic:"Political", canonical:"government" }
 };
 
 /* ===== LEXICON 빌드 ===== */
@@ -213,7 +223,7 @@ const LEXICON = (() => {
 
 /* ===== TOPIC_CORE ===== */
 const TOPIC_CORE = {
-  Political: ["revolution","revolutionary","independence","liberty","freedom","patriot","colony","colonies",
+  Political: ["political","politics","revolution","revolutionary","independence","liberty","freedom","patriot","colony","colonies",
     "rights","constitution","declaration","amendment","confederation",
     "government","law","congress","senate","state","states",
     "representative","delegate","convention","ratify","ratification"
@@ -704,6 +714,14 @@ function renderLegend(){
     if (!key) continue;
     const [t] = key.split("__");
     if (STATE.topic!=="All" && t!==STATE.topic) continue;
+    
+    // Apply same filters as renderMosaic
+    if (STATE.hideOther && d.dominantTopic === "Other") continue;
+    const ymin = STATE.yearMin || 1770;
+    const ymax = STATE.yearMax || 1810;
+    if (!d.year) continue;
+    if (d.year < ymin || d.year > ymax) continue;
+    
     counts.set(key, (counts.get(key)||0)+1);
   }
   
