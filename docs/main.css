@@ -308,6 +308,35 @@ body{
 .legend-head{display:flex;align-items:center;justify-content:space-between}
 .hint{color:var(--muted); font-size:11px;}
 
+/* Data section */
+.data {
+  margin-top: 20px;
+}
+
+.data-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.data-list li {
+  font-size: 12px;
+}
+
+.data-list a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.data-list a:hover {
+  color: #5a8bff;
+  text-decoration: underline;
+}
+
 /* 캐논 리스트 */
 .canon-list{display:flex; flex-direction:column; gap:5px; margin-top:6px}
 .canon-item{
