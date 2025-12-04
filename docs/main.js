@@ -1974,11 +1974,28 @@ async function main(){
       if (mainHeader) mainHeader.style.display = 'none';
       // 랜딩 페이지 맨 위로 스크롤
       landing.scrollTo({ top: 0, behavior: 'smooth' });
+      // Hero visible class 추가
+      landing.classList.add('hero-visible');
     });
   }
   
-  // Enter/Space 키로도 진행
+  // Scroll 감지로 scroll-cue 표시/숨김
   if (landing) {
+    landing.classList.add('hero-visible'); // 초기 상태
+    
+    landing.addEventListener('scroll', function() {
+      const heroSection = document.querySelector('.hero');
+      if (heroSection) {
+        const heroRect = heroSection.getBoundingClientRect();
+        // Hero 섹션이 50% 이상 보이면 표시
+        if (heroRect.top > -heroRect.height * 0.5) {
+          landing.classList.add('hero-visible');
+        } else {
+          landing.classList.remove('hero-visible');
+        }
+      }
+    });
+    
     landing.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
