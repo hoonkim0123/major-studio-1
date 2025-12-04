@@ -252,7 +252,8 @@ const CONDITIONAL_TERMS = {
   note: /shilling|pence|pound|bank|currency|issue|sheet|uncut|denomination/i,
   bank: /credit|finance|currency|debt|account/i,
   work: /labor|employment|apprentice|guild/i,
-  state: /government|congress|law|representative|delegate/i
+  state: /government|congress|law|representative|delegate/i,
+  providence: /divine|god|faith|grace|salvation|worship|church|lord|heaven|blessed|almighty/i
 };
 function isValidContext(tok, text){
   const cond = CONDITIONAL_TERMS[tok];
@@ -273,7 +274,7 @@ const NOISY_TERMS = new Set([
   "figure","fig","illustration","front","back","recto","verso",
   "including","include","contains","containing","thereof","therein",
   "whereof","herein","hereof","between","within","without","among","thereby","hereby",
-  "boston","delancey","watts","providence","london","phila","mr","mrs","miss"
+  "boston","delancey","watts","london","phila","mr","mrs","miss"
 ]);
 
 /* ===== 복합어 정규화 & 토큰화 ===== */
@@ -606,10 +607,11 @@ function renderMosaic(){
     grid.appendChild(el);
   }
 
-  // Reflect sort mode on Random toggle (in header)
-  const randomBtn = document.getElementById('btn-random-toggle');
-  if (randomBtn) {
-    randomBtn.className = 'btn-random' + (STATE.sortMode === 'Random' ? ' active' : '');
+  // Update document count display
+  const docCountEl = document.getElementById('doc-count');
+  if (docCountEl) {
+    const count = sorted.length;
+    docCountEl.textContent = `${count} document${count !== 1 ? 's' : ''}`;
   }
 }
 
@@ -692,6 +694,7 @@ function renderDecadeButtons(){
       STATE.yearMin = d.min;
       STATE.yearMax = d.max;
       renderDecadeButtons();
+      renderLegend();
       renderMosaic();
       syncURL();
     };
@@ -843,56 +846,18 @@ async function loadCSV(){
   // 1. cleaned JSON (구조화된 데이터)
   const cleanedDocs = await d3.json("data/cleaned_docs.json");
   
-  // 2. 원본 CSV (키워드 분석용 전체 텍스트)
-  const rawRows = await d3.csv("data/textual_core_1770_1810.csv");
-  
-  // 원본 데이터를 ID로 매핑
-  const rawMap = new Map();
-  rawRows.forEach(row => {
-    const id = row.collectionsURL?.split('/').pop() || '';
-    if (id) rawMap.set(id, row);
-  });
+  // CSV 로딩 제거됨 - cleaned_docs.json만 사용
   
   // loaded counts (quiet)
   
-  // 두 소스를 결합
+  // cleaned_docs.json 사용
   DOCS = cleanedDocs.map(doc => {
     const metadata = doc.metadata || {};
-    const rawRow = rawMap.get(doc.id) || {};
-    
-    // 🔍 CSV의 topic 컬럼에서 subject/related_event 추출
-    // topic 컬럼에 Subject 정보가 JSON 형태로 저장되어 있음
-    if (rawRow.topic && !metadata.subject) {
-      try {
-        const parsed = typeof rawRow.topic === 'string' ? JSON.parse(rawRow.topic) : rawRow.topic;
-        if (parsed.Subject) metadata.subject = parsed.Subject;
-        if (parsed.subject) metadata.subject = parsed.subject;
-        if (parsed['related event']) metadata.related_event = parsed['related event'];
-        if (parsed.related_event) metadata.related_event = parsed.related_event;
-      } catch (e) {
-        // Not JSON, ignore
-      }
-    }
-    
-    // notes 컬럼에서도 추가 정보 추출 (location 등)
-    if (rawRow.notes && !metadata.location) {
-      try {
-        const parsed = typeof rawRow.notes === 'string' ? JSON.parse(rawRow.notes) : rawRow.notes;
-        if (parsed.Location) metadata.location = parsed.Location;
-        if (parsed.location) metadata.location = parsed.location;
-      } catch (e) {
-        // Not JSON, ignore
-      }
-    }
     
     // 키워드 분석용 통합 텍스트
     const _text = [
       doc.title, doc.title,  // title 2x for weighting
       doc.description,
-      rawRow.notes || "",  // 원본 notes
-      rawRow.title || "",
-      rawRow.topic || "",
-      rawRow.name || "",
       metadata.object_type,
       metadata.topic,
       metadata.associated_person,
@@ -907,29 +872,28 @@ async function loadCSV(){
       description: doc.description || "",
       year: doc.year || null,
       thumbnail: doc.thumbnail || "",
-      sourceURL: doc.sourceURL || "",
+      sourceURL: doc.sourceURL || doc.link || "",
       metadata: metadata,
-      // 🔍 키워드 분석용 통합 필드 (원본 텍스트 포함)
+      // 🔍 키워드 분석용 통합 필드
       _text: _text,
       // 기존 필드 호환성 (토픽 분석 로직에서 사용)
-      name: metadata.associated_person || rawRow.name || "",
+      name: metadata.associated_person || "",
       collection: metadata.object_type || "",
-      objectType: metadata.object_type || "",
+      objectType: doc.objectType || metadata.object_type || "",
       object_type: metadata.object_type || "",
-      collectionsURL: doc.sourceURL || "",
+      collectionsURL: doc.link || doc.sourceURL || "",
       imageURL: doc.thumbnail || "",
       filename: doc.thumbnail || "",
-      topic: metadata.topic || rawRow.topic || "",
-      date: metadata.date_raw || "",
-      notes: rawRow.notes || doc.description || "",  // 원본 notes 우선
+      topic: metadata.topic || "",
+      date: doc.date || metadata.date_raw || "",
+      notes: doc.description || "",
       summary: doc.description || ""
     };
   });
   
   // processed docs (quiet)
   
-  /* 기존 CSV 파싱 로직 (참고용으로 보존) - 아래 코드 주석 처리됨
-  const rows = await d3.csv("data/textual_core_1770_1810.csv");
+  /* 기존 CSV 파싱 로직 (참고용으로 보존) - CSV 파일 삭제됨
   let idCounter = 1;
 
   DOCS = rows.map(r=>{
@@ -1149,9 +1113,22 @@ function cleanDescription(raw){
   if (!raw) return "";
   let s = String(raw);
   
-  // "Description": "..." 형식에서 값만 추출
-  const m = s.match(/"Description"\s*:\s*"([\s\S]*?)"\s*}\s*$/);
-  if (m) s = m[1];
+  // "No description available" 제거 (독립적으로 나타나는 경우)
+  s = s.replace(/\bNo description available\.?\b/gi, "");
+  
+  // JSON 형식이면 Description 필드 추출 시도
+  if (s.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(s);
+      if (parsed.Description) {
+        s = parsed.Description;
+      }
+    } catch (e) {
+      // JSON 파싱 실패, 정규식으로 시도
+      const m = s.match(/"Description"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/);
+      if (m) s = m[1];
+    }
+  }
   
   // URL 제거 (http/https로 시작하는 모든 URL)
   s = s.replace(/https?:\/\/[^\s]+/g, "");
@@ -1179,7 +1156,7 @@ function cleanDescription(raw){
   return s;
 }
 
-function highlightKeywords(text, doc, { ignoreTopic = null } = {}){
+function highlightKeywords(text, doc){
   if (!text) return "";
   let out = String(text).replace(/\u00A0/g, " ");
 
@@ -1192,7 +1169,6 @@ function highlightKeywords(text, doc, { ignoreTopic = null } = {}){
   const phrases = Object.keys(PHRASE_LEXICON).sort((a,b)=> b.length - a.length);
   for (const ph of phrases){
     const meta = PHRASE_LEXICON[ph];
-    if (ignoreTopic && meta && meta.topic === ignoreTopic) continue;
     out = out.replace(phraseRe(ph), (m)=> `<mark data-topic="${escapeHtml(meta.topic || '')}">${escapeHtml(m)}</mark>`);
   }
 
@@ -1213,7 +1189,6 @@ function highlightKeywords(text, doc, { ignoreTopic = null } = {}){
       if (!isValidContext(tok, text)) return m;
       const meta = LEXICON.get(tok);
       const topic = meta ? meta.topic : "Other";
-      if (ignoreTopic && topic === ignoreTopic) return m;
       return `<mark data-topic="${escapeHtml(topic)}">${escapeHtml(m)}</mark>`;
     });
   }
@@ -1239,17 +1214,9 @@ async function renderDetail(doc){
   const detailTranscription = $("#detail-transcription");
 
   const safeTitle = doc.title || "Untitled";
-  // topic to ignore when highlighting (null => highlight everything)
-  const ignoreTopic = (STATE.topic && STATE.topic !== 'All') ? STATE.topic : null;
 
   // 🆕 Smithsonian API로 실제 이미지들 가져오기
-  overlay.classList.remove("hidden");
-  
-  // 로딩 상태 표시
-  img.src = "";
-  img.alt = "Loading images...";
-  const indicator = $("#page-indicator");
-  if (indicator) indicator.textContent = "Loading...";
+  // (오버레이는 openDetail에서 이미 열림)
   
   // API에서 이미지 가져오기
   const imageURLs = await fetchSmithsonianImages(doc);
@@ -1418,9 +1385,8 @@ async function renderDetail(doc){
   }
 
   // Highlight topic/key tokens in the title for the detail view
-  // Render title with topic token highlighting (but ignore UI-selected topic)
   try {
-    title.innerHTML = highlightKeywords(safeTitle, doc, { ignoreTopic }) || escapeHtml(safeTitle);
+    title.innerHTML = highlightKeywords(safeTitle, doc) || escapeHtml(safeTitle);
   } catch (e) {
     title.textContent = safeTitle;
   }
@@ -1665,8 +1631,6 @@ async function renderDetail(doc){
     if (detailIdentifiers) {
       detailIdentifiers.innerHTML = ids.join('');
       detailIdentifiers.classList.remove('hidden');
-    } else {
-      console.warn('detailIdentifiers element missing; skipping identifiers rendering');
     }
   } else {
     if (detailIdentifiers) detailIdentifiers.classList.add('hidden');
@@ -1680,8 +1644,6 @@ async function renderDetail(doc){
     if (detailRights) {
       detailRights.innerHTML = rightsParts.join('');
       detailRights.classList.remove('hidden');
-    } else {
-      console.warn('detailRights element missing; skipping rights rendering');
     }
   } else {
     if (detailRights) detailRights.classList.add('hidden');
@@ -1693,8 +1655,6 @@ async function renderDetail(doc){
     if (detailKeywords) {
       detailKeywords.innerHTML = `<p>${keywords.map(k => `<span class="kw">${k}</span>`).join(' ')}</p>`;
       detailKeywords.classList.remove('hidden');
-    } else {
-      console.warn('detailKeywords element missing; skipping keywords rendering');
     }
   } else {
     if (detailKeywords) detailKeywords.classList.add('hidden');
@@ -1706,22 +1666,32 @@ async function renderDetail(doc){
   if (cleanedTrans && cleanedTrans.trim().length > 20) {
     if (detailTranscription) {
       try {
-        detailTranscription.innerHTML = `<div class="transcription-body">${highlightKeywords(cleanedTrans, doc, { ignoreTopic })}</div>`;
+        detailTranscription.innerHTML = `<div class="transcription-body">${highlightKeywords(cleanedTrans, doc)}</div>`;
       } catch (e) {
         detailTranscription.innerHTML = `<div class="transcription-body">${escapeHtml(cleanedTrans)}</div>`;
       }
       detailTranscription.classList.remove('hidden');
-    } else {
-      console.warn('detailTranscription element missing; skipping transcription rendering');
     }
   } else {
     if (detailTranscription) detailTranscription.classList.add('hidden');
   }
 
   // === 메인 설명 텍스트 ===
-  const rawDesc = doc.description || "";
+  let rawDesc = doc.description || "";
+  
+  // description이 객체인 경우 문자열로 변환
+  if (typeof rawDesc === 'object' && rawDesc !== null) {
+    rawDesc = JSON.stringify(rawDesc);
+  }
+  
+  // "No description available" 같은 placeholder는 무시
+  if (rawDesc === "No description available." || rawDesc === "No description available") {
+    rawDesc = "";
+  }
+  
   const cleaned = rawDesc;
-  const bodyText = cleaned || (doc._text ? cleanDescription(doc._text) : "");
+  // ⚠️ description이 없으면 _text 대신 빈 문자열 사용 (제목 반복 방지)
+  const bodyText = cleaned || "";
 
   // 텍스트 파싱: 문단별 분리 (예: \n\n로 분리된 문단)
   try {
@@ -1730,12 +1700,12 @@ async function renderDetail(doc){
       const paragraphs = bodyText.split(/\n\n+/).filter(p => p.trim());
       if (paragraphs.length > 1) {
         const formattedText = paragraphs
-            .map(p => `<p>${(highlightKeywords(p, doc, { ignoreTopic }) || escapeHtml(p))}</p>`)
+            .map(p => `<p>${(highlightKeywords(p, doc) || escapeHtml(p))}</p>`)
             .join("");
           desc.innerHTML = formattedText;
       } else {
           try {
-            desc.innerHTML = highlightKeywords(bodyText, doc, { ignoreTopic }) || escapeHtml(bodyText);
+            desc.innerHTML = highlightKeywords(bodyText, doc) || escapeHtml(bodyText);
           } catch (e) {
             desc.textContent = bodyText;
           }
@@ -1748,23 +1718,38 @@ async function renderDetail(doc){
     if (desc) desc.innerHTML = "<em>No description available.</em>";
   }
 
+  // Topics mix 섹션 처리
   barsWrap.innerHTML = "";
-  let mix = computeTopicMix(doc, { topN: 5, includeOther:false });
-  // fallback: if no computed mix, show the document's dominant topic as a single bar
-  if (!mix || !mix.length) {
-    const dom = doc.dominantTopic || (doc.topics && doc.topics[0]) || "Other";
-    mix = [{ topic: dom, p: 1 }];
-  }
-  for (const m of mix){
-    const row = document.createElement("div");
-    row.className = "detail-bar";
-    row.innerHTML = `
-      <div class="label">${m.topic}</div>
-      <div class="track"><div class="fill"></div></div>
-    `;
-    row.querySelector(".fill").style.width = Math.round(m.p*100) + "%";
-    row.querySelector(".fill").style.background = colorByTopic(m.topic);
-    barsWrap.appendChild(row);
+  const detailBarsSection = document.querySelector('.detail-bars');
+  
+  // description이 없고 _text가 제목만인 경우 Topics mix 숨김
+  const hasDescription = doc.description && doc.description.trim();
+  const textIsOnlyTitle = !doc._text || doc._text.trim().length < 50;
+  
+  if (!hasDescription && textIsOnlyTitle) {
+    // Topics mix 섹션 숨김
+    if (detailBarsSection) detailBarsSection.style.display = 'none';
+  } else {
+    // Topics mix 표시
+    if (detailBarsSection) detailBarsSection.style.display = '';
+    
+    let mix = computeTopicMix(doc, { topN: 5, includeOther:false });
+    // fallback: if no computed mix, show the document's dominant topic as a single bar
+    if (!mix || !mix.length) {
+      const dom = doc.dominantTopic || (doc.topics && doc.topics[0]) || "Other";
+      mix = [{ topic: dom, p: 1 }];
+    }
+    for (const m of mix){
+      const row = document.createElement("div");
+      row.className = "detail-bar";
+      row.innerHTML = `
+        <div class="label">${m.topic}</div>
+        <div class="track"><div class="fill"></div></div>
+      `;
+      row.querySelector(".fill").style.width = Math.round(m.p*100) + "%";
+      row.querySelector(".fill").style.background = colorByTopic(m.topic);
+      barsWrap.appendChild(row);
+    }
   }
 
   STATE.view = "detail";
@@ -1802,10 +1787,66 @@ async function openDetail(id){
   const doc = getDocById(id);
   if (!doc) return;
   STATE.selectedId = id;
-  await renderDetail(doc);
-  syncURL();
+  
+  // 🆕 오버레이를 먼저 표시하고 로딩 레이어 표시
+  const overlay = $("#detail-overlay");
+  const loadingLayer = $("#detail-loading");
+  overlay.classList.remove("hidden");
+  if (loadingLayer) loadingLayer.classList.remove("hidden");
+  
+  // 🆕 모든 필드를 즉시 초기화
+  const img = $("#detail-image");
+  const title = $("#detail-title");
+  const year = $("#detail-year");
+  const desc = $("#detail-desc");
+  const barsWrap = $("#detail-bars-wrap");
+  
+  if (img) {
+    img.src = "";
+    img.alt = "";
+  }
+  if (title) title.textContent = "";
+  if (year) year.innerHTML = "";
+  if (desc) desc.innerHTML = "";
+  if (barsWrap) barsWrap.innerHTML = "";
+  
+  // 페이지 인디케이터 초기화
+  const indicator = $("#page-indicator");
+  if (indicator) indicator.textContent = "";
+  
+  // 썸네일 초기화
+  const thumbContainer = $("#media-thumbnails");
+  if (thumbContainer) {
+    thumbContainer.innerHTML = "";
+    thumbContainer.classList.add("hidden");
+  }
+  
+  // 모든 필드 섹션 숨김
+  const fieldSections = [
+    "#detail-subject",
+    "#detail-people",
+    "#detail-collection",
+    "#detail-type",
+    "#detail-identifiers",
+    "#detail-rights",
+    "#detail-keywords",
+    "#detail-transcription"
+  ];
+  fieldSections.forEach(sel => {
+    const el = $(sel);
+    if (el) el.classList.add("hidden");
+  });
+  
   // Prevent background scrolling
   document.body.style.overflow = "hidden";
+  
+  // 이제 실제 내용 렌더링
+  await renderDetail(doc);
+  
+  // 🆕 로딩 레이어 숨김
+  if (loadingLayer) loadingLayer.classList.add("hidden");
+  
+  syncURL();
   
   // Update navigation button states
   const prevBtn = $("#detail-prev");
@@ -1953,23 +1994,16 @@ async function main(){
   await loadCSV();
   renderLegend();
   renderMosaic();
+  
+  // About 슬라이드쇼 초기화 (DOCS 로드 후)
+  initAboutSlideshow();
 
   applyFromURL();
 
   // Year range slider UI removed — no inputs to wire. Year filtering remains
   // controlled by `STATE.yearMin` / `STATE.yearMax` if needed programmatically.
 
-  // Random toggle wiring (in header)
-  const randomToggle = document.getElementById('btn-random-toggle');
-  if (randomToggle){
-    // set initial active state
-    randomToggle.className = 'btn-random' + (STATE.sortMode === 'Random' ? ' active' : '');
-    randomToggle.addEventListener('click', ()=>{
-      const enabled = randomToggle.classList.toggle('active');
-      if (enabled){ setOrdering('Random'); }
-      else { setOrdering('Chrono'); }
-    });
-  }
+  // Document count is automatically updated in renderMosaic() function
 
   // Close detail button
   const closeBtn = $("#detail-close");
@@ -2028,19 +2062,15 @@ async function main(){
 }
 
 /* ===================== Auto Slideshow in About Section ===================== */
-(async function initAboutSlideshow(){
+function initAboutSlideshow(){
   const imgEl = $("#about-slideshow");
   if (!imgEl) return;
 
-  // Load CSV and filter for paper documents with images
-  const csv = await d3.csv("data/textual_core_1770_1810.csv");
-  
-  // Filter: Paper documents (Pamphlet, Broadside, Letter) + with thumbnail
-  const paperDocs = csv.filter(doc => {
-    const type = (doc.objectType || "").toLowerCase();
+  // Use DOCS from cleaned_docs.json
+  // Filter: Documents with thumbnails
+  const paperDocs = DOCS.filter(doc => {
     const hasThumbnail = doc.thumbnail && doc.thumbnail.trim();
-    const isPaper = /pamphlet|broadside|letter|book|newspaper|document/i.test(type);
-    return hasThumbnail && isPaper;
+    return hasThumbnail;
   });
 
   if (!paperDocs.length) {
@@ -2061,5 +2091,6 @@ async function main(){
   }, 5000);
 
   updateSlide();
-})();
+}
+
 document.addEventListener("DOMContentLoaded", main);

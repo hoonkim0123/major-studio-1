@@ -26,7 +26,7 @@
         <div class="about-text">
           <h2>What is Paper Trail</h2>
           <p>
-            Paper Trail analyzes hundreds of documents from the Revolutionary period—letters, pamphlets, petitions, and broadsides—to observe how vocabularies of war, politics, society, business, and religion shifted over time.
+            Paper Trail explores hundreds of letters, pamphlets, petitions, and broadsides from 1770–1810 to trace how the language of war, politics, society, business, and religion evolved over time.
           </p>
         </div>
       </div>
@@ -36,8 +36,7 @@
       <img src="data/images/LandingPage_3.svg" alt="How to read illustration" class="howto-illustration">
       <h2>How to Read</h2>
       <p>
-        Each tile is a document. Color shows topic; 
-        layout follows time (1770–1810). Hover to preview and click to open details.
+        Each tile represents one document. Color marks its topic, and its position follows the timeline from 1770 to 1810. Hover to preview, and click to view the full record.
       </p>
       <button id="btn-enter-from-howto" class="btn-enter" style="margin-top: 1.5rem;">Enter the Project</button>
     </section>
@@ -49,7 +48,7 @@
   <header class="main-header">
     <button id="btn-back-to-landing" class="btn-back" aria-label="Back to landing page">← Back</button>
     <p class="main-subtitle">Tracing language across Revolutionary-era documents (1770–1810)</p>
-    <button id="btn-random-toggle" class="btn-random">Random Order</button>
+    <span id="doc-count" class="doc-count">504 documents</span>
   </header>
 
   <main class="container">
@@ -84,6 +83,11 @@
   <!-- ▼▼▼ Detail Overlay (타일 클릭 시 뜨는 전체 보기) ▼▼▼ -->
   <div id="detail-overlay" class="detail-overlay hidden" role="dialog" aria-modal="true" aria-label="Document detail">
     <div class="detail-card">
+      <!-- 🆕 Loading overlay layer (inside card) -->
+      <div id="detail-loading" class="detail-loading hidden">
+        <div class="loading-spinner"></div>
+        <p>Loading document...</p>
+      </div>
       <!-- 좌: 이미지/줌 -->
       <div class="detail-media">
         <div class="media-main">

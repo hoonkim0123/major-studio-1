@@ -1,25 +1,49 @@
 # Paper Trail
 
-Revolutionary-era documents visualization project using data from the Smithsonian Institution.
+An interactive exploration of language within Revolutionary-era documents (1770–1810) from the Smithsonian Institution.
 
-## Peoject Demo
+![Paper Trail Preview](Preview/PreviewImage_1.png)
 
-https://hoonkim0123.github.io/major-studio-1/
+## 🔗 Live Demo
 
-## Description
+**[View Project →](https://hoonkim0123.github.io/major-studio-1/)**
 
-This project visualizes how words circulated across different contexts during the American Revolutionary era rather than how they changed over time. By classifying each document by topic—**Military**, **Society**, **Political**, **Religion**, and **Business**—and analyzing keyword frequencies, the visualization reveals linguistic networks and patterns in revolutionary documents.
+## 📖 About
 
-The interactive interface allows users to filter and explore recurring terms, uncovering the interconnected language that shaped one of history's most transformative periods.
+Paper Trail visualizes **504 documents** from the American Revolutionary period, revealing how language circulated across different contexts. Each document is classified by topic—**Military**, **Society**, **Political**, **Religion**, and **Business**—creating a mosaic that traces linguistic patterns and connections.
 
-## Topic
+Rather than showing how words changed over time, this project illuminates the **interconnected networks of revolutionary language** across letters, pamphlets, broadsides, and official documents.
 
-Language patterns in revolutionary documents
+### Features
 
-## Data
+- **Interactive mosaic visualization** with 504 historical documents
+- **Topic-based filtering** across five categories
+- **Time period filtering** by decade (1770–1810)
+- **Document detail view** with high-resolution images and metadata
+- **Multi-page document support** with thumbnail navigation
+- **Keyword highlighting** based on topic classification
+- **Responsive design** for desktop and mobile
 
-- **Hugging Face Repository**: https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections
-- **Smithsonian Collections Search**: https://collections.si.edu/search/
+## 🎨 Visual Design
 
-## Author
-**Saehun Kim** (he/him) 
+Each tile represents a document:
+- **Color** indicates the dominant topic
+- **Position** follows chronological order (1770–1810)
+- **Hover** reveals document preview and metadata
+- **Click** opens full detail view with images and description
+
+![Document Detail View](Preview/PreviewImage_2.png)
+
+## 📊 Data
+
+- **Primary Source**: [Smithsonian Institution Collections](https://collections.si.edu/search/)
+- **Dataset Repository**: [Hugging Face - Revolutionary Era Collections](https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections)
+- **Document Count**: 504 text-based historical documents
+- **Date Range**: 1770–1810
+- **Image Source**: Smithsonian API with multi-page support
+
+## 📝 Author
+
+**Saehun Kim** (he/him)  
+MS Data Visualization '25  
+Parsons School of Design 
