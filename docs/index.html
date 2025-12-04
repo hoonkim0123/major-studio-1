@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>Paper Trail - Language Within Papers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
   <!-- D3 v7 -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <link rel="stylesheet" href="main.css" />
@@ -11,8 +15,11 @@
 <body>
 <!-- 🆕 Landing Page -->
   <div id="landing" class="landing">
+    <!-- Minimal grid shadow background -->
+    <div class="grid-shadow"></div>
+    
     <section class="hero">
-      <h1 class="title serif-title">Paper Trail</h1>
+      <h1 class="serif-title">Paper Trail</h1>
       <p class="subtitle">Language Within the American Revolution (1770–1810)</p>
       <button id="btn-explore" class="btn-enter">Enter the Project</button>
       <div class="scroll-cue">↓ Scroll to learn more</div>
@@ -41,7 +48,7 @@
       <button id="btn-enter-from-howto" class="btn-enter" style="margin-top: 1.5rem;">Enter the Project</button>
     </section>
   </div>
-  <!-- 글로벌 툴팁 -->
+  <!-- Global Tooltip -->
   <div id="tooltip" class="tip hidden"></div>
 
   <!-- 🆕 Main view header with subtitle -->
@@ -52,13 +59,13 @@
   </header>
 
   <main class="container">
-    <!-- 좌: 모자이크 -->
+    <!-- Left: Tiles -->
     <section class="mosaic-wrap">
       <div id="mosaic" class="grid"></div>
       <div id="empty" class="empty hidden">No results.</div>
     </section>
 
-    <!-- 우: 패널 (토픽/레전드) -->
+    <!-- Right: Panel (Topic/Legend) -->
     <aside class="panel right">
       <section>
         <h2>Filter by Topic</h2>
@@ -76,11 +83,20 @@
         </div>
         <div id="canon-list" class="canon-list"></div>
       </section>
+      <section class="data">
+        <h2>Data</h2>
+        <h2>
+          <li><a href="https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections" target="_blank" rel="noopener">Hugging Face</a></li>
+          <li><a href="https://edan.si.edu/openaccess/apidocs/" target="_blank" rel="noopener">Smithsonian Open Access API</a></li>
+        </h2>
+        </section>
+      
     </aside>
+    
 
   </main>
 
-  <!-- ▼▼▼ Detail Overlay (타일 클릭 시 뜨는 전체 보기) ▼▼▼ -->
+  <!-- ▼▼▼ Detail Overlay (Full view that appears when a tile is clicked) ▼▼▼ -->
   <div id="detail-overlay" class="detail-overlay hidden" role="dialog" aria-modal="true" aria-label="Document detail">
     <div class="detail-card">
       <!-- 🆕 Loading overlay layer (inside card) -->
@@ -88,7 +104,7 @@
         <div class="loading-spinner"></div>
         <p>Loading document...</p>
       </div>
-      <!-- 좌: 이미지/줌 -->
+      <!-- Left: Image/Zoom -->
       <div class="detail-media">
         <div class="media-main">
           <div id="page-indicator" class="page-indicator">1 / 1</div>
@@ -97,12 +113,10 @@
           </div>
         </div>
         <!-- 🆕 Thumbnail Gallery -->
-        <div class="media-thumbnails" id="media-thumbnails">
-          <!-- 썸네일들이 JS로 동적 생성됨 -->
-        </div>
+        <div class="media-thumbnails" id="media-thumbnails"></div>
       </div>
 
-      <!-- 우: 텍스트 -->
+      <!-- Right: Text -->
       <div class="detail-body">
         <div class="detail-topbar">
           <div class="detail-nav">
@@ -115,7 +129,7 @@
         <h3 id="detail-title" class="detail-title">Untitled</h3>
         <div class="detail-meta" id="detail-year"></div>
 
-        <!-- 필드별 섹션 -->
+        <!-- Field Sections -->
         <div class="detail-fields">
           <div id="detail-subject" class="field-section hidden">
             <h4>Subject</h4>
@@ -134,27 +148,19 @@
 
           <!-- Identifiers / Rights / Transcription sections removed per user request (kept in JS guards) -->
         </div>
-        <!-- 토픽 믹스 -->
+        <!-- Topics mix -->
         <div class="detail-bars">
           <h4>Topics mix</h4>
           <div id="detail-bars-wrap"></div>
         </div>
 
-        <!-- 메인 설명 -->
+        <!-- Main Description -->
         <div id="detail-desc" class="detail-desc"></div>
 
       </div>
     </div>
   </div>
   <!-- ▲▲▲ Detail Overlay ▲▲▲ -->
-
-  <footer class="app-footer">
-    <small>
-      <b>Data Sources:</b> 
-      <a href="https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections" target="_blank" rel="noopener">Hugging Face Dataset</a> • 
-      <a href="https://edan.si.edu/openaccess/apidocs/" target="_blank" rel="noopener">Smithsonian Open Access API</a>
-    </small>
-  </footer>
 
   <script src="main.js"></script>
 </body>

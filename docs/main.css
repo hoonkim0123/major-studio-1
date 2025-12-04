@@ -21,15 +21,21 @@
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%; overflow:hidden;}
 body{
   margin:0; background:#ffffff; color:#2c2c2c;
   font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 .serif-title {
-  font-family: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
-  font-weight: 600;
+  font-family: "Abril Fatface", serif;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 4rem;
+  margin: 0;
+  line-height: 1.1;
 }
 
 
@@ -123,7 +129,8 @@ body{
 /* Layout */
 .container{
   display:flex; flex-direction:row;
-  min-height: calc(100vh - 60px);
+  flex: 1;
+  min-height: 0;
 }
 .mosaic-wrap{
   flex:1; position:relative; padding:16px; overflow:auto;
@@ -133,6 +140,7 @@ body{
   padding: 16px; 
   width: 320px;
   background:var(--panel); border-left:1px solid var(--border);
+  overflow: auto;
 }
 
 /* 툴팁 */
@@ -364,9 +372,6 @@ body{
 .stats-bar span { margin: 0 16px; }
 .stats-bar strong { font-weight: 600; color: #333; }
 
-.app-footer{
-  border-top:1px solid var(--border); padding:10px 20px; color:var(--muted);
-}
 
 /* ===== Detail Overlay ===== */
 .detail-overlay{
@@ -381,7 +386,7 @@ body{
 .detail-loading {
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -586,6 +591,11 @@ body{
   font-size: 12px;
   font-weight: 500;
   z-index: 10;
+  display: none;
+}
+
+.page-indicator:not(:empty) {
+  display: block;
 }
 
 /* 우측 본문 */
@@ -721,7 +731,7 @@ body{
   text-decoration: underline;
 }
 
-/* 토픽 막대 */
+/* Topics mix */
 .detail-bars h4{ margin:8px 0 4px; font-size:13px; color:#666; }
 #detail-bars-wrap{ display:flex; flex-direction:column; gap:6px; }
 .detail-bar{ display:flex; align-items:center; gap:8px; }
@@ -814,7 +824,32 @@ body{
   display: block;
 }
 
+/* Minimal grid shadow background */
+.grid-shadow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.04) 0px,
+      rgba(0, 0, 0, 0.04) 1px,
+      transparent 1px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 0px,
+      rgba(0, 0, 0, 0.04) 1px,
+      transparent 1px,
+      transparent 30px
+    );
+}
+
 .landing section {
+  position: relative;
+  z-index: 1;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -841,7 +876,7 @@ body{
   font-size: 1.1rem;
   color: #555;
   max-width: 500px;
-  margin: 1rem auto 2.5rem;
+  margin: 1rem 0 2rem 0;
 }
 
 /* Enter button in hero */
@@ -872,6 +907,8 @@ body{
   font-size: 0.9rem;
   opacity: 0.4;
   animation: float 2s ease-in-out infinite;
+  position: fixed;
+  bottom: 40px;
 }
 @keyframes float { 0%,100%{transform:translateY(0);}50%{transform:translateY(8px);} }
 
