@@ -38,8 +38,8 @@ Each tile represents a document:
 
 This repository includes a process archive documenting sketches, visual experiments, and interaction decisions for Paper Trail. See the full narrative and images in the Sketches process document:
 
-- [Interactive Concepts & Visual Progress (Process Archive)](Sketches/README.md)
-
+- [Concepts & Visual Progress Process Archive)](Progress/README.md)
+ - [Concepts & Visual Progress (Process Archive)](Progress/README.md)
 
 ## 📊 Data
 
