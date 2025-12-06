@@ -10,13 +10,13 @@ An interactive exploration of language within Revolutionary-era documents (1770�
 
 ## 📖 About
 
-Paper Trail visualizes **504 documents** from the American Revolutionary period, revealing how language circulated across different contexts. Each document is classified by topic—**Military**, **Society**, **Political**, **Religion**, and **Business**—creating a mosaic that traces linguistic patterns and connections.
+Paper Trail visualizes **466 documents** from the American Revolutionary period, revealing how language circulated across different contexts. Each document is classified by topic—**Military**, **Society**, **Political**, **Religion**, and **Business**—creating a mosaic that traces linguistic patterns and connections.
 
 Rather than showing how words changed over time, this project illuminates the **interconnected networks of revolutionary language** across letters, pamphlets, broadsides, and official documents.
 
 ### Features
 
-- **Interactive mosaic visualization** with 504 historical documents
+- **Interactive mosaic visualization** with 466 historical documents
 - **Topic-based filtering** across five categories
 - **Time period filtering** by decade (1770–1810)
 - **Document detail view** with high-resolution images and metadata
@@ -34,11 +34,18 @@ Each tile represents a document:
 
 ![Document Detail View](Preview/PreviewImage_2.png)
 
+## 🧭 Process & Sketches
+
+This repository includes a process archive documenting sketches, visual experiments, and interaction decisions for Paper Trail. See the full narrative and images in the Sketches process document:
+
+- [Interactive Concepts & Visual Progress (Process Archive)](Sketches/README.md)
+
+
 ## 📊 Data
 
 - **Primary Source**: [Smithsonian Institution Collections](https://collections.si.edu/search/)
 - **Dataset Repository**: [Hugging Face - Revolutionary Era Collections](https://huggingface.co/datasets/RevolutionCrossroads/si_us_revolutionary_era_collections)
-- **Document Count**: 504 text-based historical documents
+- **Document Count**: 466 text-based historical documents
 - **Date Range**: 1770–1810
 - **Image Source**: Smithsonian API with multi-page support
 

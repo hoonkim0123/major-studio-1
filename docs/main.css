@@ -241,7 +241,7 @@ body{
   font-weight: 500;
   font-size: 12px;
   transition: all 0.3s ease;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Inter", sans-serif;
   letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
@@ -924,7 +924,7 @@ body{
   font-weight: 600;
   font-size: 15px;
   transition: all 0.3s ease;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Inter", sans-serif;
   letter-spacing: 0.02em;
   margin-bottom: 1.5rem;
 }

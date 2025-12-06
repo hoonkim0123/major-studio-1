@@ -235,7 +235,7 @@ const TOPIC_CORE = {
   ],
   Society: ["women","family","education","charity","association","customs","tradition","slavery","social","inheritance","kinship","domestic","marriage","apprentice","guild","labor","occupation","craft","tradecraft","artisan","employment","profession"],
   Religion: ["faith","divine","godliness","providence","salvation","grace","spirit","soul","worship","devotion","religious","puritan","evangelical","moral","morality"],
-  Business: ["plantation","manufacturer","enterprise","property","labor","production","exportation","warehouse","shipbuilding"]
+  Business: ["plantation","manufacturer","enterprise","property","labor","production","exportation","warehouse","shipbuilding","cents","currency","finance","credit","debt","bank","invoice","ledger","receipt","tariff","duty","commerce","trade","merchant","merchandise"]
 };
 for (const [topic, words] of Object.entries(TOPIC_CORE)){
   for (const w of words){
