@@ -3,7 +3,7 @@
  * (Applied: 4) Sort switch, 5) Tooltip thumbnail)
  * ========================================================== */
 
-/* ===================== 0) 헬퍼/유틸 ===================== */
+/* ===================== 0) Helpers / Utilities ===================== */
 const $  = (sel)=>document.querySelector(sel);
 const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
 
@@ -53,14 +53,14 @@ function formatTopicLine(doc){
 }
 
 function getDocText(doc){
-  // _text 필드가 있으면 우선 사용 (이미 통합된 텍스트)
+  // If _text field exists, use it first (already consolidated text)
   if (doc._text && doc._text.length > 10) return doc._text;
   
-  // 없거나 너무 짧으면 즉시 생성
+  // If absent or too short, build text from available fields
   const title = doc.title || "";
   const metadata = doc.metadata || {};
   
-  // 모든 관련 필드를 포함 (title은 2번 포함해 가중치 부여)
+  // Include all relevant fields (title included twice to boost weight)
   const text = [
     title, title,
     doc.description,
@@ -81,7 +81,7 @@ function getDocText(doc){
   return text;
 }
 
-/* ===================== 0.1 이미지 로딩 유틸 ===================== */
+/* ===================== 0.1 Image loading utilities ===================== */
 const IMG_BASES = ["data/images/", "downloads/", "images/"];
 function sanitizePath(p){ return String(p || "").trim().replace(/\/{2,}/g, "/"); }
 function withCommonExts(stem){
@@ -99,7 +99,7 @@ function buildImageCandidates(doc){
   if (doc.filename){
     const raw = sanitizePath(doc.filename);
     if (/^https?:/i.test(raw)) {
-      // URL은 아래에서 처리
+      // URLs are handled below
     } else if (/^\.*\//.test(raw)){
       withCommonExts(raw).forEach(p => out.push(p));
     } else {
@@ -124,7 +124,7 @@ function buildImageCandidates(doc){
   return out.filter(Boolean);
 }
 
-/* ===================== 1) Canonical Groups (서브카테고리) ===================== */
+/* ===================== 1) Canonical Groups (subcategories) ===================== */
 const CANONICAL_GROUPS = {
   Military: {
     army: ["army","regiment","troop","troops","militia","infantry","dragoons","cavalry","company","battalion","soldier","enlist","corps","navy","medic","marine"],
@@ -170,7 +170,7 @@ const CANONICAL_GROUPS = {
   }
 };
 
-/* ===== 구문 사전(복합어) ===== */
+/* ===== Phrase lexicon (compound phrases) ===== */
 const PHRASE_LEXICON = {
   "postmaster general":        { topic:"Political", canonical:"government" },
   "postmasters general":       { topic:"Political", canonical:"government" },
@@ -206,7 +206,7 @@ const PHRASE_LEXICON = {
   "Deputy Post Master General,": { topic:"Political", canonical:"government" }
 };
 
-/* ===== LEXICON 빌드 ===== */
+/* ===== Build LEXICON ===== */
 const LEXICON = (() => {
   const idx = new Map();
   for (const [topic, groups] of Object.entries(CANONICAL_GROUPS)) {
@@ -243,7 +243,7 @@ for (const [topic, words] of Object.entries(TOPIC_CORE)){
   }
 }
 
-/* ===== 모호어 컨텍스트 ===== */
+/* ===== Ambiguous-term context ===== */
 const CONDITIONAL_TERMS = {
   act: /congress|statute|law|assembly/i,
   bill: /congress|senate|parliament|law|legislation/i,
@@ -261,7 +261,7 @@ function isValidContext(tok, text){
   return cond.test(text);
 }
 
-/* ===== 불용어/노이즈 ===== */
+/* ===== Stopwords / Noise ===== */
 const STOP = new Set(("the of and to a in for on by with from as at is are be was were has have had this that those these " +
 "an or if it into not no but than then so such which who whom whose where when while will shall may can upon within without " +
 "about over under between among against out up down per via").split(" "));
@@ -277,7 +277,7 @@ const NOISY_TERMS = new Set([
   "boston","delancey","watts","london","phila","mr","mrs","miss"
 ]);
 
-/* ===== 복합어 정규화 & 토큰화 ===== */
+/* ===== Compound normalization & tokenization ===== */
 function normalizePhrases(s){
   let out = String(s||"");
   // normalize hyphen/dash connected words (e.g., "Post-Office" -> "Post Office")
@@ -366,7 +366,7 @@ function getCanonicalHits(text){
   return hits;
 }
 
-/* ===================== 4) 키워드 추출 ===================== */
+/* ===================== 4) Keyword extraction ===================== */
 function extractKeyTerms(text, canonicalKey=null, max=Infinity){
   const tokens = tok3plus(text);
   if (!tokens.length) return [];
@@ -405,7 +405,7 @@ function extractKeyTerms(text, canonicalKey=null, max=Infinity){
   return uniq.slice(0, max === Infinity ? undefined : max);
 }
 
-/* ===================== 4.5) 서브카테 키워드 수집 (미리보기용) ===================== */
+/* ===================== 4.5) Subcategory keyword collection (preview) ===================== */
 function getCanonicalKeywords(topic, canonical){
   const fromGroups = (CANONICAL_GROUPS[topic] && CANONICAL_GROUPS[topic][canonical]) || [];
   const fromPhrases = Object.entries(PHRASE_LEXICON)
@@ -416,7 +416,7 @@ function getCanonicalKeywords(topic, canonical){
   return { phrases, words };
 }
 
-/* ===================== 5) 멀티태깅 ===================== */
+/* ===================== 5) Multi-tagging ===================== */
 function assignMultiTags(doc, {TOPIC_MIN_HITS=1, SUBCAT_PER_TOPIC=4, allowedCanonPerTopic=null} = {}){
   const text = getDocText(doc);
 
@@ -457,7 +457,7 @@ function assignMultiTags(doc, {TOPIC_MIN_HITS=1, SUBCAT_PER_TOPIC=4, allowedCano
   doc.key_terms     = extractKeyTerms(text, doc.canonical_key, Infinity);
 }
 
-/* ===================== 6) 색상/토픽 믹스 ===================== */
+/* ===================== 6) Color / Topic mix ===================== */
 function colorByTopic(t){
   const colors = {
     Military:"#FA8468",
@@ -481,16 +481,16 @@ function computeTopicMix(doc, { topN = 3, includeOther = false } = {}){
   return entries.map(([topic, v]) => ({ topic, p: v / total }));
 }
 
-/* ===================== 7) 전역 상태 ===================== */
+/* ===================== 7) Global state ===================== */
 let DOCS = [];
 let STATE = { topic:"All", canonical:null, hideOther:false, yearMin:1770, yearMax:1810, decade:"All" };
 STATE.view = "grid";
 STATE.selectedId = null;
 STATE.order = [];
-STATE.sortMode = "Chrono";   // ✅ (4) 정렬 스위치: "Topic" | "Chrono" | "Random"
+STATE.sortMode = "Chrono";   // ✅ (4) sort switch: "Topic" | "Chrono" | "Random"
 let TOP4_CANON = null;
 
-// 전역으로 detail view의 키보드 핸들러 참조를 보관
+// Store a global reference to the detail view keyboard handler
 let detailKeyHandler = null;
 
 function getDocById(id){ return DOCS.find(d => d.id === id); }
@@ -520,7 +520,7 @@ function renderMosaic(){
     return true;
   });
 
-  // ✅ (4) 정렬 스위치
+  // ✅ (4) sort switch
   let sorted = filtered;
   if (STATE.sortMode === "Chrono"){
     sorted = filtered.slice().sort((a,b)=>{
@@ -569,11 +569,11 @@ function renderMosaic(){
       el.style.background = `linear-gradient(180deg, ${stops.join(",")})`;
     }
 
-    // ✅ (5) 툴팁 썸네일 (가능할 때만)
+    // ✅ (5) Tooltip thumbnail (when available)
     const imgSrc = (buildImageCandidates(d) || [])[0];
     const imgTag = imgSrc ? `<img class="tip-thumb" src="${imgSrc}" alt="" />` : "";
     
-    // 🆕 페이지 탭 표시 (multi-page 문서인 경우)
+    // Show page tabs (for multi-page documents)
     const pageCount = d.imageURLs?.length || 1;
     const tabsHTML = pageCount > 1 
       ? `<div class="page-tabs">${Array.from({length: Math.min(pageCount, 5)}, (_, i) => 
@@ -581,7 +581,7 @@ function renderMosaic(){
         ).join('')}${pageCount > 5 ? '<span class="tab">...</span>' : ''}</div>` 
       : '';
 
-    // 🆕 Multi-tag display (show dominant topic + other topics)
+    // Multi-tag display (show dominant topic + other topics)
     const domTopic = d.dominantTopic || "Other";
     const topicHTML = `<div class="t3" style="font-size:11px; color:#cbd3e1; margin-top:4px;">${escapeHtml(domTopic)}</div>`;
     
@@ -633,7 +633,7 @@ function setOrdering(mode){
   syncURL();
 }
 
-/* ===================== 9) 토픽 버튼 & 사이드바 ===================== */
+/* ===================== 9) Topic buttons & sidebar ===================== */
 function renderTopicButtons(){
   const wrap = $("#topic-buttons");
   wrap.innerHTML = "";
@@ -644,7 +644,7 @@ function renderTopicButtons(){
     const btn = document.createElement("button");
     const isActive = STATE.topic===t;
     btn.className = "btn" + (isActive ? " active":"");
-    // 작은 컬러 점(옵션): 버튼 텍스트에 dot 붙이고 싶으면 아래 주석 해제
+    // small color dot (optional): uncomment below to add a dot to the button text
     // btn.innerHTML = `<span class="dot" style="background:${colorByTopic(t)}"></span>${t}`;
     btn.textContent = t;
     btn.onclick = ()=>{
@@ -705,7 +705,7 @@ function renderDecadeButtons(){
   wrap.appendChild(row);
 }
 
-/* ===================== 10) 레전드(서브카테) ===================== */
+/* ===================== 10) Legend (subcategories) ===================== */
 function renderLegend(){
   const box = $("#canon-list");
   const title = $("#legend-title");
@@ -817,7 +817,7 @@ function renderLegend(){
   });
 }
 
-/* ===================== 11) CSV 로드 ===================== */
+/* ===================== 11) CSV Load ===================== */
 function computeTopCanonicals(docs){
   const global = new Map(); // topic -> Map(canonical -> count)
   for (const d of docs){
@@ -843,18 +843,18 @@ function computeTopCanonicals(docs){
 
 async function loadCSV(){
   
-  // 1. cleaned JSON (구조화된 데이터)
+  // 1. cleaned JSON (structured data)
   const cleanedDocs = await d3.json("data/cleaned_docs.json");
   
-  // CSV 로딩 제거됨 - cleaned_docs.json만 사용
+  // CSV loading removed - use cleaned_docs.json only
   
   // loaded counts (quiet)
   
-  // cleaned_docs.json 사용
+  // Use cleaned_docs.json
   DOCS = cleanedDocs.map(doc => {
     const metadata = doc.metadata || {};
     
-    // 키워드 분석용 통합 텍스트
+    // consolidated text for keyword analysis
     const _text = [
       doc.title, doc.title,  // title 2x for weighting
       doc.description,
@@ -874,9 +874,9 @@ async function loadCSV(){
       thumbnail: doc.thumbnail || "",
       sourceURL: doc.sourceURL || doc.link || "",
       metadata: metadata,
-      // 🔍 키워드 분석용 통합 필드
+      // 🔍 consolidated field for keyword analysis
       _text: _text,
-      // 기존 필드 호환성 (토픽 분석 로직에서 사용)
+      // compatibility with old fields (used by topic analysis)
       name: metadata.associated_person || "",
       collection: metadata.object_type || "",
       objectType: doc.objectType || metadata.object_type || "",
@@ -891,66 +891,6 @@ async function loadCSV(){
     };
   });
   
-  // processed docs (quiet)
-  
-  /* 기존 CSV 파싱 로직 (참고용으로 보존) - CSV 파일 삭제됨
-  let idCounter = 1;
-
-  DOCS = rows.map(r=>{
-    let year = null;
-    for (const k of Object.keys(r)) {
-      if (/(year|date)/i.test(k) && r[k]) {
-        const m = String(r[k]).match(/\b(1[7-9]\d{2}|20\d{2})\b/);
-        if (m) { year = +m[0]; break; }
-      }
-    }
-    if (!year) {
-      const mm = String(Object.values(r).join(" ")).match(/\b(1[7-9]\d{2}|20\d{2})\b/);
-      if (mm) year = +mm[0];
-    }
-
-    const imageFilename = r.image_filename || r.filename || 
-                         `${r.title?.replace(/[^\w\s]/g, '').slice(0, 30)}.jpg` || 
-                         `doc_${idCounter}.jpg`;
-
-    // 🆕 Multi-page 이미지 지원: collectionsURL에서 IIIF 이미지 추출
-    const imageURLs = [];
-    let primaryImageURL = r.imageURL || r.image_url || r.thumbnail || "";
-    
-    // IIIF URL 해상도 조절 (250 → 800)
-    if (primaryImageURL && primaryImageURL.includes("/full/")) {
-      primaryImageURL = primaryImageURL.replace(/\/full\/[0-9,]+\//, "/full/800,/");
-    }
-    
-    if (primaryImageURL) imageURLs.push(primaryImageURL);
-    
-    // 🔍 collectionsURL에서 추가 이미지 찾기 (향후 API 연동 대비)
-    // 현재는 thumbnail만 있지만, 실제 collection page에는 여러 이미지가 있을 수 있음
-
-    return {
-      id: r.id || r.objectID || `doc_${idCounter++}`,
-      title: r.title || r.name || r.object_title || "",
-      description: r.description || r.object_description || r.label_text || "",
-      summary: r.summary || "",
-      notes: r.notes || "",
-      topic: r.topic || r.group || "",
-      year,
-      object_type: r.object_type || r.media_type || "",
-      collection: r.collection || r.collection_name || "",
-      name: r.name || "",
-      objectType: r.objectType || "",
-      collectionsURL: r.collectionsURL || "",
-      // _text: 오직 의미있는 필드만 포함 (URL, 메타데이터 JSON 제외)
-      _text: [
-        r.title, r.description, r.summary, r.notes, r.topic,
-        r.object_type, r.collection, r.name
-      ].filter(Boolean).join(" "),
-      imageURL: primaryImageURL || `data/images/${imageFilename}`,
-      imageURLs: imageURLs.length > 0 ? imageURLs : [primaryImageURL || `data/images/${imageFilename}`]
-    };
-  });
-  */ // 기존 CSV 파싱 로직 끝
-
   TOP4_CANON = computeTopCanonicals(DOCS);
 
   // tagging diagnostics suppressed for quieter console
@@ -961,7 +901,7 @@ async function loadCSV(){
   
   // tagging results suppressed
   
-  // 토픽별 문서 수 확인
+  // documents by dominant topic (quiet)
   const topicCounts = {};
   DOCS.forEach(d => {
     const t = d.dominantTopic || "Other";
@@ -969,16 +909,16 @@ async function loadCSV(){
   });
   // documents by topic (quiet)
   
-  // canonical_key가 있는 문서 수 확인
+  // Count documents with canonical_key
   const withCanonical = DOCS.filter(d => d.canonical_key).length;
   // documents with canonical key (quiet)
 }
 
-/* ===================== 12) 툴팁 ===================== */
+/* ===================== 12) Tooltip ===================== */
 const TIP = document.getElementById("tooltip");
 function showTip(html){ TIP.innerHTML = html; TIP.classList.remove("hidden"); }
 function moveTip(ev){
-  // tooltip이 보이고 있는 상태에서만 위치 계산
+  // only compute position when tooltip is visible
   if (TIP.classList.contains("hidden")) return;
   
   const pad = 16;
@@ -990,22 +930,22 @@ function moveTip(ev){
   let x = ev.clientX + offset;
   let y = ev.clientY - offset;
   
-  // 오른쪽 경계 초과 시 왼쪽으로 이동
+  // move left if exceeding right boundary
   if (x + tipW + pad > window.innerWidth) {
     x = ev.clientX - tipW - offset;
   }
   
-  // 왼쪽 경계 미만 시 오른쪽으로 이동
+  // move right if under left boundary
   if (x < pad) {
     x = pad;
   }
   
-  // 아래쪽 경계 초과 시 위쪽에 표시
+  // display above if exceeding bottom boundary
   if (y + tipH + pad > window.innerHeight) {
     y = ev.clientY - tipH - offset;
   }
   
-  // 위쪽 경계 미만 시 아래쪽으로 이동
+  // move down if above top boundary
   if (y < pad) {
     y = pad;
   }
@@ -1016,23 +956,23 @@ function moveTip(ev){
 function hideTip(){ TIP.classList.add("hidden"); }
 
 /* ===================== 13) Detail Overlay ===================== */
-let detailImageIndex = 0; // 현재 보고 있는 이미지 인덱스
+let detailImageIndex = 0; // index of currently viewed image
 
-// 🆕 Smithsonian API에서 추가 이미지 가져오기
+// Fetch additional images from Smithsonian API
 async function fetchSmithsonianImages(doc) {
   const collectionURL = doc.sourceURL || doc.collectionsURL;
   
   // document info suppressed (quiet)
   
-  // collectionsURL이 없으면 기본 이미지만 반환
+  // if collectionsURL is missing, return the primary image only
   if (!collectionURL) {
     console.warn('⚠️ No sourceURL found, using default image');
     const fallback = doc.thumbnail || doc.imageURL;
     return fallback ? [fallback] : [];
   }
   
-  // URL에서 Object ID 추출 (예: edanmdm:npm_2025.2004.5)
-  // 유연한 매칭: 'edanmdm:...' 이 문자열 어디에든 존재하면 사용
+  // extract Object ID from URL (e.g. edanmdm:npm_2025.2004.5)
+  // flexible match: use if 'edanmdm:...' appears anywhere in the string
   const idMatch = collectionURL.match(/(edanmdm:[^\/\?#]+)/i);
   if (!idMatch) {
     console.warn('⚠️ Could not parse Object ID from:', collectionURL);
@@ -1058,7 +998,7 @@ async function fetchSmithsonianImages(doc) {
     
     const data = await response.json();
     
-    // online_media에서 모든 이미지 추출
+    // extract all images from online_media
     const media = data.response?.content?.descriptiveNonRepeating?.online_media?.media;
     
     if (!media || media.length === 0) {
@@ -1068,7 +1008,7 @@ async function fetchSmithsonianImages(doc) {
     
     // media list suppressed
     
-    // 🔧 모든 이미지 URL 추출 (IIIF 또는 deliveryService)
+    // 🔧 extract all image URLs (IIIF or deliveryService)
     const imageUrls = media
       .filter(m => {
         const hasImage = m.content && (
@@ -1080,11 +1020,11 @@ async function fetchSmithsonianImages(doc) {
       })
       .map(m => {
         let url = m.content;
-        // IIIF URL이면 해상도 업그레이드
+        // upgrade resolution for IIIF URLs
         if (url.includes('/full/')) {
           url = url.replace(/\/full\/[0-9,]+\//, '/full/800,/');
         }
-        // deliveryService URL이면 max=800 파라미터 추가
+        // add max=800 parameter for deliveryService URLs
         else if (url.includes('deliveryService')) {
           url = url.replace(/[?&]max=[0-9]+/, '');
           url += url.includes('?') ? '&max=800' : '?max=800';
@@ -1094,7 +1034,7 @@ async function fetchSmithsonianImages(doc) {
     
     // extracted image URLs (quiet)
     
-    // fallback 처리 개선
+    // improved fallback handling
     if (imageUrls.length > 0) {
       return imageUrls;
     }
@@ -1113,10 +1053,10 @@ function cleanDescription(raw){
   if (!raw) return "";
   let s = String(raw);
   
-  // "No description available" 제거 (독립적으로 나타나는 경우)
+  // remove "No description available" (when it appears alone)
   s = s.replace(/\bNo description available\.?\b/gi, "");
   
-  // JSON 형식이면 Description 필드 추출 시도
+  // if JSON-like, try to extract Description field
   if (s.trim().startsWith('{')) {
     try {
       const parsed = JSON.parse(s);
@@ -1124,33 +1064,33 @@ function cleanDescription(raw){
         s = parsed.Description;
       }
     } catch (e) {
-      // JSON 파싱 실패, 정규식으로 시도
+      // JSON parse failed, try regex
       const m = s.match(/"Description"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/);
       if (m) s = m[1];
     }
   }
   
-  // URL 제거 (http/https로 시작하는 모든 URL)
+  // remove URLs (starting with http/https)
   s = s.replace(/https?:\/\/[^\s]+/g, "");
   
-  // JSON 형식의 메타데이터 제거 (예: {"Type": "...", "Date": "..."})
+  // remove JSON-formatted metadata (e.g. {"Type": "...", "Date": "..."})
   // remove JSON-like blobs that contain common metadata keys (case-insensitive)
   s = s.replace(/\{[^}]*"(?:Type|Date|Associated Person|Associated_Person|associated person|associated_person|Signer|Maker|Writer|Collection|Location|accession|rights|originator)"[^}]*\}/gi, "");
   // remove JSON-like fragments that start with { and run to the line end (incomplete blobs)
   s = s.replace(/\{[^\}\n]{0,400}"[^\n]{0,200}[^\n]*$/gim, "");
   
-  // 유니코드 이스케이프 처리
+  // handle unicode escapes
   s = s.replace(/\\u([0-9a-fA-F]{4})/g, (_,h)=> String.fromCharCode(parseInt(h,16)));
   
-  // 백슬래시 이스케이프 처리
-  s = s.replace(/\\"/g, '"');   // \" → "
-  s = s.replace(/\\\\/g, '\\'); // \\ → \
+  // handle backslash escapes
+  s = s.replace(/\\\"/g, '"');   // \" → "
+  s = s.replace(/\\\\/g, '\\'); // \\ → \\ 
   
-  // 줄바꿈 정리
+  // Normalize line breaks
   s = s.replace(/\\n/g, "\n").replace(/\u00A0/g, " ");
   s = s.replace(/\s+\./g, ".").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n");
   
-  // 앞뒤 공백 제거 및 연속 공백 정리
+  // Trim and normalize consecutive spaces
   s = s.trim().replace(/\s{2,}/g, " ");
   
   return s;
@@ -1203,7 +1143,7 @@ async function renderDetail(doc){
   const desc = $("#detail-desc");
   const barsWrap = $("#detail-bars-wrap");
   
-  // 필드 섹션들
+  // Metadata fields
   const detailSubject = $("#detail-subject");
   const detailPeople = $("#detail-people");
   const detailCollection = $("#detail-collection");
@@ -1215,20 +1155,18 @@ async function renderDetail(doc){
 
   const safeTitle = doc.title || "Untitled";
 
-  // 🆕 Smithsonian API로 실제 이미지들 가져오기
-  // (오버레이는 openDetail에서 이미 열림)
+  // Fetch actual images from Smithsonian API
+  // (Overlay is already open in openDetail)
   
-  // API에서 이미지 가져오기
+  // Fetch images from API
   const imageURLs = await fetchSmithsonianImages(doc);
   
-  // 🆕 이미지 유효성 체크
   const hasValidImages = imageURLs.length > 0 && imageURLs.some(url => url && url.trim());
   
   if (!hasValidImages) {
     console.warn('⚠️ No valid images, switching to text-only mode');
     overlay.classList.add('no-image-mode');
     
-    // 이미지 영역 완전히 숨김
     const mediaElement = $('.detail-media');
     if (mediaElement) mediaElement.style.display = 'none';
   } else {
@@ -1239,13 +1177,13 @@ async function renderDetail(doc){
     if (mediaElement) mediaElement.style.display = '';
   }
   
-  // 🆕 이미지 슬라이더 초기화
+    // Initialize image slider
   detailImageIndex = 0;
   const hasMultiplePages = imageURLs.length > 1;
   
   console.debug(`Multi-page: ${hasMultiplePages}`);
   
-  // 버튼 상태 업데이트 함수
+  // button state update
   function updateButtons() {
     const prevBtn = $("#prev-page");
     const nextBtn = $("#next-page");
@@ -1273,39 +1211,39 @@ async function renderDetail(doc){
     img.style.transform = "";
     img.draggable = false;
     
-    // API에서 받은 URL을 직접 사용 (buildImageCandidates 우회)
+    // Use URL directly from API (bypassing buildImageCandidates)
     img.onerror = () => {
       console.error(`❌ Failed to load image: ${imageUrl}`);
       img.alt = "Image failed to load";
     };
     img.onload = () => {
       console.debug(`✅ Image loaded successfully: ${imageUrl}`);
-      // 이미지 로드 후 줌 이벤트 설정
+      // Set up zoom event after image load
       setupImageZoom();
     };
     img.src = imageUrl;
     img.alt = `${safeTitle} - Page ${index + 1}`;
     
-    // 페이지 인디케이터 업데이트
+    // Update page indicator
     updatePageIndicator();
     updateButtons();
     updateThumbnailActive();
   }
   
-  // 이미지 줌 기능
+  // Image zoom functionality
   function setupImageZoom() {
     const viewport = $("#media-viewport");
     
-    // 이미지에 직접 onclick 설정
+    // Set onclick directly on image
     img.onclick = (e) => {
       e.stopPropagation();
       const isZoomed = img.classList.toggle('zoomed');
       
-      // viewport에도 zoomed 클래스 추가/제거
+      // Toggle zoomed class on viewport as well
       if (viewport) {
         viewport.classList.toggle('zoomed', isZoomed);
         
-        // 줌인 시 이미지 중앙으로 스크롤
+        // Scroll to center image when zoomed in
         if (isZoomed) {
           setTimeout(() => {
             viewport.scrollLeft = (viewport.scrollWidth - viewport.clientWidth) / 2;
@@ -1316,7 +1254,7 @@ async function renderDetail(doc){
     };
   }
   
-  // 페이지 인디케이터 업데이트
+  // Update page indicator
   function updatePageIndicator() {
     const indicator = $("#page-indicator");
     if (indicator) {
@@ -1327,7 +1265,7 @@ async function renderDetail(doc){
     }
   }
   
-  // 🆕 썸네일 갤러리 생성
+  // Create thumbnail gallery
   function createThumbnails() {
     const thumbContainer = $("#media-thumbnails");
     if (!thumbContainer) return;
@@ -1347,7 +1285,7 @@ async function renderDetail(doc){
       if (index === detailImageIndex) thumbDiv.classList.add('active');
       
       const thumbImg = document.createElement('img');
-      // 썸네일용 작은 이미지 (max=200)
+      // Small image for thumbnail (max=200)
       const thumbUrl = url.replace(/max=800/, 'max=200');
       thumbImg.src = thumbUrl;
       thumbImg.alt = `Page ${index + 1}`;
@@ -1364,13 +1302,13 @@ async function renderDetail(doc){
     });
   }
   
-  // 썸네일 active 상태 업데이트
+  // Update thumbnail active state
   function updateThumbnailActive() {
     const thumbs = document.querySelectorAll('.thumb-item');
     thumbs.forEach((thumb, index) => {
       if (index === detailImageIndex) {
         thumb.classList.add('active');
-        // 현재 썸네일이 보이도록 스크롤
+        // Scroll to make the current thumbnail visible
         thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       } else {
         thumb.classList.remove('active');
@@ -1378,7 +1316,7 @@ async function renderDetail(doc){
     });
   }
   
-  // 이미지가 있을 때만 이미지 관련 함수 실행
+  // Run image-related functions only if images are present
   if (hasValidImages) {
     loadImage(detailImageIndex);
     createThumbnails();
@@ -1393,7 +1331,7 @@ async function renderDetail(doc){
   
   const metadata = doc.metadata || {};
   
-  // 메타데이터: 연도 + 토픽라인 (토픽 키워드 하이라이트 적용)
+  // Metadata: year + topic line (with topic keyword highlighting)
   const rawTopicLine = formatTopicLine(doc);
   // Topic line: render plain text without highlighted tokens
   const highlightedTopicLine = rawTopicLine || "";
@@ -1401,7 +1339,7 @@ async function renderDetail(doc){
   metaHTML += `<span class="topic-line">${escapeHtml(highlightedTopicLine)}</span>`;
   year.innerHTML = metaHTML;
 
-  // === 필드별 섹션 렌더링 ===
+  // === Field-specific section rendering ===
   
   // 0. Subject (from metadata)
   let subjectInfo = [];
@@ -1455,7 +1393,7 @@ async function renderDetail(doc){
     if (detailSubject) detailSubject.classList.add("hidden");
   }
   
-  // 1. 사람/이름 정보
+  // 1. People/Name information
   const peopleContent = $("#detail-people-content");
   let ap = metadata.associated_person;
   let firstPerson = null;
@@ -1575,19 +1513,19 @@ async function renderDetail(doc){
     detailPeople.classList.add('hidden');
   }
   
-  // 2. 컬렉션/출처 정보
+  // 2. Collection/Source information
   const collectionInfo = [];
   if (metadata.object_type) collectionInfo.push(metadata.object_type);
   if (metadata.topic) collectionInfo.push(`Topic: ${metadata.topic}`);
   
-  // sourceURL이 있으면 항상 섹션 표시
+  // Always show section if sourceURL exists
   if (collectionInfo.length > 0 || doc.sourceURL) {
     let collectionHTML = "<h4>Source / Collection</h4>";
     collectionInfo.forEach(info => {
       collectionHTML += `<p>${info}</p>`;
     });
     
-    // sourceURL이 있으면 링크 추가 (정보가 없어도)
+    // Add link if sourceURL exists (even if no other info)
     if (doc.sourceURL && typeof doc.sourceURL === 'string') {
       collectionHTML += `<p><a href="${doc.sourceURL}" target="_blank" rel="noopener">View in Smithsonian Collections →</a></p>`;
     }
@@ -1602,7 +1540,7 @@ async function renderDetail(doc){
     if (detailCollection) detailCollection.classList.add("hidden");
   }
   
-  // 3. 추가 메타데이터 (location, accession 등)
+  // 3. Additional metadata (location, accession, etc.)
   const extraMeta = [];
   if (metadata.location) extraMeta.push(`Location: ${metadata.location}`);
   if (metadata.accession) extraMeta.push(`Accession: ${metadata.accession}`);
@@ -1676,24 +1614,24 @@ async function renderDetail(doc){
     if (detailTranscription) detailTranscription.classList.add('hidden');
   }
 
-  // === 메인 설명 텍스트 ===
+  // === Main description text ===
   let rawDesc = doc.description || "";
   
-  // description이 객체인 경우 문자열로 변환
+  // Convert description to string if it's an object
   if (typeof rawDesc === 'object' && rawDesc !== null) {
     rawDesc = JSON.stringify(rawDesc);
   }
   
-  // "No description available" 같은 placeholder는 무시
+  // Ignore placeholders like "No description available"
   if (rawDesc === "No description available." || rawDesc === "No description available") {
     rawDesc = "";
   }
   
   const cleaned = rawDesc;
-  // ⚠️ description이 없으면 _text 대신 빈 문자열 사용 (제목 반복 방지)
+  // ⚠️ If description is missing, use empty string instead of _text (to avoid repeating title)
   const bodyText = cleaned || "";
 
-  // 텍스트 파싱: 문단별 분리 (예: \n\n로 분리된 문단)
+  // Text parsing: split by paragraphs (e.g., separated by \n\n)
   try {
     if (!desc) throw new Error('Missing #detail-desc element');
     if (bodyText) {
@@ -1718,19 +1656,19 @@ async function renderDetail(doc){
     if (desc) desc.innerHTML = "<em>No description available.</em>";
   }
 
-  // Topics mix 섹션 처리
+  // Topics mix section handling
   barsWrap.innerHTML = "";
   const detailBarsSection = document.querySelector('.detail-bars');
   
-  // description이 없고 _text가 제목만인 경우 Topics mix 숨김
+  // Hide Topics mix if no description and _text is only the title
   const hasDescription = doc.description && doc.description.trim();
   const textIsOnlyTitle = !doc._text || doc._text.trim().length < 50;
   
   if (!hasDescription && textIsOnlyTitle) {
-    // Topics mix 섹션 숨김
+    // Hide Topics mix section
     if (detailBarsSection) detailBarsSection.style.display = 'none';
   } else {
-    // Topics mix 표시
+    // Show Topics mix section
     if (detailBarsSection) detailBarsSection.style.display = '';
     
     let mix = computeTopicMix(doc, { topN: 5, includeOther:false });
@@ -1754,8 +1692,8 @@ async function renderDetail(doc){
 
   STATE.view = "detail";
   
-  // 🆕 키보드 네비게이션 (화살표 키)
-  // 전역 detailKeyHandler로 관리: 이전 핸들러 제거 후 새로 등록
+  // Keyboard navigation (arrow keys)
+  // Managed by global detailKeyHandler: remove previous handler before adding new one
   if (detailKeyHandler) {
     document.removeEventListener('keydown', detailKeyHandler);
     detailKeyHandler = null;
@@ -1775,7 +1713,7 @@ async function renderDetail(doc){
   
   overlay.classList.remove("hidden");
   
-  // 🆕 오버레이 배경 클릭 시 닫기
+  // Close on overlay background click
   overlay.onclick = (e) => {
     if (e.target === overlay) {
       closeDetail();
@@ -1788,13 +1726,13 @@ async function openDetail(id){
   if (!doc) return;
   STATE.selectedId = id;
   
-  // 🆕 오버레이를 먼저 표시하고 로딩 레이어 표시
+  // Show overlay first, then show loading layer
   const overlay = $("#detail-overlay");
   const loadingLayer = $("#detail-loading");
   overlay.classList.remove("hidden");
   if (loadingLayer) loadingLayer.classList.remove("hidden");
   
-  // 🆕 모든 필드를 즉시 초기화
+  // Immediately initialize all fields
   const img = $("#detail-image");
   const title = $("#detail-title");
   const year = $("#detail-year");
@@ -1810,18 +1748,18 @@ async function openDetail(id){
   if (desc) desc.innerHTML = "";
   if (barsWrap) barsWrap.innerHTML = "";
   
-  // 페이지 인디케이터 초기화
+  // Initialize page indicator
   const indicator = $("#page-indicator");
   if (indicator) indicator.textContent = "";
   
-  // 썸네일 초기화
+  // Initialize thumbnails
   const thumbContainer = $("#media-thumbnails");
   if (thumbContainer) {
     thumbContainer.innerHTML = "";
     thumbContainer.classList.add("hidden");
   }
   
-  // 모든 필드 섹션 숨김
+  // Hide all field sections
   const fieldSections = [
     "#detail-subject",
     "#detail-people",
@@ -1840,10 +1778,10 @@ async function openDetail(id){
   // Prevent background scrolling
   document.body.style.overflow = "hidden";
   
-  // 이제 실제 내용 렌더링
+  // Now render the actual content
   await renderDetail(doc);
   
-  // 🆕 로딩 레이어 숨김
+  // Hide loading layer
   if (loadingLayer) loadingLayer.classList.add("hidden");
   
   syncURL();
@@ -1865,11 +1803,11 @@ function closeDetail(){
   // Allow background scrolling
   document.body.style.overflow = "";
   
-  // 🆕 오버레이 클릭 이벤트 제거
+  // Remove overlay click event
   const overlay = $("#detail-overlay");
   if (overlay) overlay.onclick = null;
   
-  // 🆕 detail 키 핸들러 제거 (등록되어 있으면)
+  // Remove detail key handler (if registered)
   if (detailKeyHandler) {
     document.removeEventListener('keydown', detailKeyHandler);
     detailKeyHandler = null;
@@ -1877,7 +1815,7 @@ function closeDetail(){
 }
 
 
-/* ===================== 14) URL 동기화 ===================== */
+/* ===================== 14) URL Synchronization ===================== */
 function buildQuery(){
   const q = new URLSearchParams();
   if (STATE.selectedId) q.set("id", STATE.selectedId);
@@ -1917,36 +1855,36 @@ function applyFromURL(){
   if (id){ openDetail(id); }
 }
 
-/* ===================== 15) 초기화 ===================== */
+/* ===================== 15) Initialization ===================== */
 async function main(){
-  // ========== Landing Page 로직 ==========
+  // ========== Landing Page logic ==========
   const landing = document.getElementById('landing');
   const app = document.querySelector('.container');
   const btn = document.getElementById('btn-explore');
   
-  // localStorage에서 skip 여부 확인 (개발 중: 항상 landing 표시하려면 아래 주석 해제)
+  // Check skip status from localStorage (during development: to always show landing, uncomment below)
   // const hasVisited = localStorage.getItem('pt_visited') === 'true';
-  const hasVisited = false; // 개발 중: landing 항상 표시
+  const hasVisited = false; // During development: always show landing
   
-  // URL 파라미터에서도 확인
+  // Also check from URL parameters
   const urlParams = new URLSearchParams(location.search);
   const skipLanding = urlParams.get('skip') === '1';
   
-  // landing 표시 여부 결정
+  // Determine whether to show landing
   const mainHeader = document.querySelector('.main-header');
   if (hasVisited || skipLanding) {
-    // 앱 표시
+    // Skip landing
     if (landing) landing.style.display = 'none';
     if (app) app.style.display = 'flex';
     if (mainHeader) mainHeader.style.display = 'flex';
   } else {
-    // landing 표시
+    // Show landing
     if (landing) landing.style.display = 'block';
     if (app) app.style.display = 'none';
     if (mainHeader) mainHeader.style.display = 'none';
   }
   
-  // Explore 버튼 클릭 시 (hero & howto 섹션)
+  // When Explore button is clicked (hero & howto sections)
   const enterProject = function() {
     localStorage.setItem('pt_visited', 'true');
     if (landing) landing.style.display = 'none';
@@ -1964,7 +1902,7 @@ async function main(){
     btnFromHowto.addEventListener('click', enterProject);
   }
   
-  // Back to Landing 버튼
+  // Back to Landing button
   const btnBack = document.getElementById('btn-back-to-landing');
   if (btnBack) {
     btnBack.addEventListener('click', function() {
@@ -1972,22 +1910,22 @@ async function main(){
       if (app) app.style.display = 'none';
       const mainHeader = document.querySelector('.main-header');
       if (mainHeader) mainHeader.style.display = 'none';
-      // 랜딩 페이지 맨 위로 스크롤
+      // Scroll to top of landing page
       landing.scrollTo({ top: 0, behavior: 'smooth' });
-      // Hero visible class 추가
+      // Add Hero visible class
       landing.classList.add('hero-visible');
     });
   }
   
-  // Scroll 감지로 scroll-cue 표시/숨김
+  // Show/hide scroll cue based on scroll detection
   if (landing) {
-    landing.classList.add('hero-visible'); // 초기 상태
+    landing.classList.add('hero-visible'); // Initial state
     
     landing.addEventListener('scroll', function() {
       const heroSection = document.querySelector('.hero');
       if (heroSection) {
         const heroRect = heroSection.getBoundingClientRect();
-        // Hero 섹션이 50% 이상 보이면 표시
+        // Show if Hero section is at least 50% visible
         if (heroRect.top > -heroRect.height * 0.5) {
           landing.classList.add('hero-visible');
         } else {
@@ -2003,16 +1941,16 @@ async function main(){
       }
     });
   }
-  // ========== Landing Page 로직 끝 ==========
+  // ========== Landing Page logic end ==========
 
-  // 앱 초기화
+  // Initialize app
   renderTopicButtons();
   renderDecadeButtons();
   await loadCSV();
   renderLegend();
   renderMosaic();
   
-  // About 슬라이드쇼 초기화 (DOCS 로드 후)
+  // Initialize About slideshow (after DOCS load)
   initAboutSlideshow();
 
   applyFromURL();
@@ -2063,8 +2001,8 @@ async function main(){
     if (STATE.view !== "detail") return;
     if (ev.key === "Escape") closeDetail();
     
-    // 🆕 이미지 슬라이더 네비게이션 (좌우 화살표)
-    // 버튼 클릭으로 처리하도록 변경 (async 문제 회피)
+    // Image slider navigation (left/right arrows)
+    // Changed to handle via button clicks (to avoid async issues)
     if (ev.key === "ArrowLeft") {
       const prevBtn = $("#prev-page");
       if (prevBtn && !prevBtn.disabled) prevBtn.click();

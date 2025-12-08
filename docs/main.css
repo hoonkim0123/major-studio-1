@@ -6,12 +6,12 @@
   --accent:#7aa2ff;
   --border:#d7d7d7;
 
-  /* 타일: 직사각형 (80% 줌 비율로 조정) */
+  /* Tiles: rectangular (scaled for ~80% zoom) */
   --tileW: 30px;
   --tileH: 40px;
   --gap: 6px;
   
-  /* 토픽 컬러 */
+  /* Topic colors */
   --topic-military: #FA8468;
   --topic-society: #53ADDE;
   --topic-political: #FFC970;
@@ -148,7 +148,7 @@ body{
   overflow: auto;
 }
 
-/* 툴팁 */
+/* Tooltip */
 .tip{
   position: fixed;
   max-width: 360px;
@@ -169,7 +169,7 @@ body{
 .tip .t3{ color:#cbd3e1; }
 .tip-thumb{ display:block; width:80px; height:auto; margin-top:6px; border-radius:6px; }
 
-/* 🆕 Page Tabs in Tooltip */
+/* Page Tabs in Tooltip */
 .page-tabs {
   display: flex;
   gap: 3px;
@@ -230,7 +230,7 @@ body{
   flex-shrink: 0;
 }
 
-/* ===== 통합 버튼 스타일 (Pill-shaped) ===== */
+/* ===== Unified button styles (Pill-shaped) ===== */
 .btn {
   background: #ececec;
   border: 1px solid #d8d8d8;
@@ -278,7 +278,7 @@ body{
   transition: box-shadow 0.2s ease;
 }
 
-/* 버튼 행 레이아웃 */
+/* Button row layout */
 .btn-row { 
   display: flex; 
   flex-wrap: wrap; 
@@ -286,7 +286,7 @@ body{
   margin-bottom: 10px;
 }
 
-/* Ghost button (Close 버튼) */
+/* Ghost button (Close button) */
 .btn-ghost {
   background: none;
   border: none;
@@ -337,7 +337,7 @@ body{
   text-decoration: underline;
 }
 
-/* 캐논 리스트 */
+/* Canonical list */
 .canon-list{display:flex; flex-direction:column; gap:5px; margin-top:6px}
 .canon-item{
   display:flex; align-items:center; gap:6px;
@@ -352,7 +352,7 @@ body{
 }
 .canon-item .label{min-width:100px; font-size:11px;}
 
-/* 레전드 바 */
+/* Legend bar */
 .canon-item .bar-track{
   height:6px; background:#f5f5f5; border-radius:3px; flex:1; position:relative; overflow:hidden;
 }
@@ -416,7 +416,7 @@ body{
 }
 .detail-overlay.hidden{ display:none; }
 
-/* 🆕 Loading overlay layer (inside detail-card) */
+/* Loading overlay layer (inside detail-card) */
 .detail-loading {
   position: absolute;
   inset: 0;
@@ -457,7 +457,7 @@ body{
 
 .detail-card{
   position: relative;
-  grid-template-columns: 0.9fr 1.1fr; /* ← 이미지:텍스트 비율 반대로 */
+  grid-template-columns: 0.9fr 1.1fr; /* ← image:text ratio (reversed) */
   height: min(88vh, 880px); 
   width: min(1200px, 94vw);
   background: #fff; border-radius: 16px;
@@ -467,7 +467,7 @@ body{
   animation: detailIn .22s ease;
 }
 
-/* 🆕 No Image Mode - 텍스트 중심 레이아웃 */
+/* No Image Mode - Text-centered layout */
 .detail-overlay.no-image-mode .detail-media {
   display: none;
 }
@@ -488,7 +488,7 @@ body{
   to{ opacity:1; transform: translateY(0) scale(1) }
 }
 
-/* 좌측 미디어 */
+/* Left media area */
 .detail-media{ 
   position: relative; 
   border:1px solid var(--border); 
@@ -524,7 +524,7 @@ body{
   cursor: grabbing;
 }
 
-/* 🆕 Thumbnail Gallery */
+/* Thumbnail Gallery */
 .media-thumbnails {
   display: flex;
   gap: 8px;
@@ -589,9 +589,9 @@ body{
 }
 .media-hint{ position:absolute; left:12px; bottom:10px; font-size:12px; color:#666; background:rgba(255,255,255,.85); padding:4px 8px; border-radius:999px; }
 
-/* 🆕 Image Slider Navigation */
+/* Image Slider Navigation */
 .nav-arrow {
-  display: none !important; /* 완전히 숨김 */
+  display: none !important; /* fully hidden */
 }
 
 .nav-arrow:hover {
@@ -632,7 +632,7 @@ body{
   display: block;
 }
 
-/* 우측 본문 */
+/* Right content */
 .detail-body{ 
   display:flex; 
   flex-direction:column; 
@@ -699,7 +699,7 @@ body{
   margin-bottom: 0;
 }
 
-/* 필드 섹션 (People, Collection, Type) */
+/* Field sections (People, Collection, Type) */
 .detail-fields {
   display: flex;
   flex-direction: column;
@@ -773,19 +773,19 @@ body{
 .detail-bar .track{ height:8px; background:#f2f2f2; border-radius:4px; flex:1; position:relative; overflow:hidden; }
 .detail-bar .fill{ position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:4px; }
 
-/* 설명문 키워드 하이라이트 */
+/* Description keywords highlight */
 .detail-desc mark{
   background: #fff2a8; padding:0 2px; border-radius:3px;
 }
 
-/* 반응형 */
+/* Responsive */
 @media (max-width: 980px){
   .detail-card{ grid-template-columns: 1fr; height: 84vh; }
   .media-hint{ display:none; }
 }
 
 
-/* 하이라이트 통합 스타일 */
+/* Highlight unified styles */
 .detail-desc mark, mark[data-topic]{
   padding: 0 .15em;
   border-radius: 4px;
@@ -794,7 +794,7 @@ body{
   border: 0;
 }
 
-/* 디테일 카드 내 토픽별 배경색 (40% alpha) */
+/* Topic background colors in detail card (40% alpha) */
 .detail-desc mark[data-topic="Military"],  .detail-title mark[data-topic="Military"]  { background: #FA846866; }
 .detail-desc mark[data-topic="Society"],   .detail-title mark[data-topic="Society"]   { background: #53ADDE66; }
 .detail-desc mark[data-topic="Political"], .detail-title mark[data-topic="Political"] { background: #FFC97066; }
@@ -804,7 +804,7 @@ body{
 
 
 
-/* 사이드패널 상단 툴바 (Order 라벨 아래) */
+/* Sidepanel top toolbar (below Order label) */
 .side-toolbar{
   display:flex;
   justify-content:flex-start;
@@ -822,8 +822,8 @@ body{
 .chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; line-height:1; border:1px solid #e6e6e6; background:#f7f7f7; color:#333; }
 .chip-outline { background:#fff; border-color:#ddd; color:#555; }
 
-/* 공통 */
-/* 버튼 active/디밍 */
+/* Common */
+/* Button active / dimming */
 .btn-row .btn{
   transition: all .2s ease;
   box-shadow: none;
@@ -832,15 +832,15 @@ body{
 }
 .btn.active{ outline: none !important; }
 
-/* 디테일 카드 프레임 클리핑 */
+/* Detail card frame clipping */
 .detail-card{ overflow:hidden; }
 .media-viewport{ 
   border-radius:12px; 
   overflow:hidden; 
-  pointer-events: auto; /* 클릭 가능하게 변경 */
+  pointer-events: auto; /* enable pointer events */
 }
 
-/* 툴팁 타이포 살짝 정리 */
+/* Tooltip typography adjustments */
 .tip .t1{ font-weight:600; margin-bottom:3px; font-size:12px; }
 .tip .t2{ font-size:11px; color:#cbd3e1; }
 .tip .t3{ font-size:11px; color:#cbd3e1; line-height:1.4; }
