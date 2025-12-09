@@ -141,15 +141,12 @@ const CANONICAL_GROUPS = {
     slavery: ["slavery","slave","slaves","enslaved","enslavement","bondage","slavers","slaver"]
   },
   Political: {
-    government: ["congress","senate","assembly","committee","governor","president","crown","parliament","ministry","council","authority","administration","Courthouse","deed"],
-    law: ["law","act","bill","statute","ordinance","charter","code","resolution","decree","legislation","constitution"],
+    government: ["congress","senate","assembly","committee","governor","president","crown","parliament","ministry","council","authority","administration","Courthouse","deed","law","act","bill","statute","ordinance","charter","code","resolution","decree","legislation","constitution","constitutional","amendment","amendments","ratify","ratified","ratification","confederation","federal","federalist","union"],
     election: ["election","vote","ballot","suffrage","poll","candidate","representation","constituent"],
     diplomacy: ["treaty","alliance","proclamation","declaration","embassy","negotiation","agreement","commission","consul"],
     revolution: ["revolution","revolutionary","rebellion","rebels"],
     independence: ["independence","independent"],
     rights: ["rights","liberty","freedom","privilege","privileges","taxation","taxes","tax","citizenship","taxed"],
-    constitution: ["constitution","constitutional","amendment","amendments","ratify","ratified","ratification"],
-    confederation: ["confederation","federal","federalist","union"],
     patriot: ["patriot","patriots"]
   },
   Religion: {
@@ -177,11 +174,10 @@ const PHRASE_LEXICON = {
   "general post office":       { topic:"Political", canonical:"government" },
   "continental congress":      { topic:"Political", canonical:"government" },
   "declaration of independence": { topic:"Political", canonical:"government" },
-  "stamp act":                 { topic:"Political", canonical:"law" },
-  "george washington":         { topic:"Political", canonical:"government" },
+  "stamp act":                 { topic:"Political", canonical:"government" },
+  "george washington":         { topic:"Political", canonical:"president" },
   "general washington":        { topic:"Military",  canonical:"army" },
   "general edward hand":       { topic:"Military",  canonical:"army" },
-  "united states":             { topic:"Political", canonical:"government" },
   "benjamin franklin":         { topic:"Political", canonical:"government" },
   "continental army":          { topic:"Military",  canonical:"army" },
   "state militia":             { topic:"Military",  canonical:"army" },
@@ -195,15 +191,23 @@ const PHRASE_LEXICON = {
   "Invitation to Ball":    { topic:"Society",   canonical:"community"  },
   "tiered rate systems": { topic:"Political", canonical:"government" },
   "Royal Standard English Dictionary": { topic:"Society", canonical:"education" },
-  "William Henry Harrison": { topic:"Political", canonical:"government" },
+  "William Henry Harrison": { topic:"Political", canonical:"president" },
   "Way to Wealth or Poor Richard Improved": { topic:"Society", canonical:"education" },
   "Valentine Card": { topic:"Society", canonical:"community" },
   "naturalization certificate": { topic:"Political", canonical:"government" },
   "Joel Barlow": { topic:"Political", canonical:"government" },
-  "levying of fines": { topic:"Political", canonical:"law" },
+  "levying of fines": { topic:"Political", canonical:"government" },
   "account book": { topic:"Business", canonical:"finance" },
   "Jasper Yeates": { topic:"Political", canonical:"government" },
-  "Deputy Post Master General,": { topic:"Political", canonical:"government" }
+  "Deputy Post Master General,": { topic:"Political", canonical:"government" },
+  "Thomas Jefferson": { topic:"Political", canonical:"president" },
+  "James Madison": { topic:"Political", canonical:"president" },
+  "Great Migration": { topic:"Society", canonical:"community" },
+  "George Germain": { topic:"Political", canonical:"government" },
+  "James Monroe": { topic:"Political", canonical:"president" },
+  "john adams": { topic:"Political", canonical:"president" },
+  "Public Service": { topic:"Political", canonical:"government" },
+  "Membership Certificate": { topic:"Society", canonical:"community" },
 };
 
 /* ===== Build LEXICON ===== */
@@ -225,7 +229,7 @@ const LEXICON = (() => {
 const TOPIC_CORE = {
   Political: ["political","politics","revolution","revolutionary","independence","liberty","freedom","patriot","colony","colonies",
     "rights","constitution","declaration","amendment","confederation",
-    "government","law","congress","senate","state","states",
+    "government","law","congress","senate",
     "representative","delegate","convention","ratify","ratification"
   ],
   Military: ["war","wars","wartime","military","martial","militia","regiment","regiments",
@@ -252,7 +256,6 @@ const CONDITIONAL_TERMS = {
   note: /shilling|pence|pound|bank|currency|issue|sheet|uncut|denomination/i,
   bank: /credit|finance|currency|debt|account/i,
   work: /labor|employment|apprentice|guild/i,
-  state: /government|congress|law|representative|delegate/i,
   providence: /divine|god|faith|grace|salvation|worship|church|lord|heaven|blessed|almighty/i
 };
 function isValidContext(tok, text){
@@ -444,9 +447,9 @@ function assignMultiTags(doc, {TOPIC_MIN_HITS=1, SUBCAT_PER_TOPIC=4, allowedCano
       const allow = allowedCanonPerTopic[t];
       rows = rows.filter(r => r.canonical !== "_core" && r.canonical !== "other" && allow.has(r.canonical));
     }else{
-      rows = rows.filter(r => r.canonical !== "_core" && r.canonical !== "other");
+      rows = rows.filter(r => r.canonical !== "_core" && r.canonical !== "other" && r.count >= 3);
     }
-    const picked = rows.slice(0, SUBCAT_PER_TOPIC).map(r=>r.key);
+    const picked = rows.map(r=>r.key);
     canonicals.push(...picked);
   }
 
@@ -835,7 +838,9 @@ function computeTopCanonicals(docs){
   for (const t of TOPICS){
     if (t === "Other") continue;
     const m = global.get(t) || new Map();
-    const rows = Array.from(m.entries()).sort((a,b)=> b[1]-a[1]).slice(0,4);
+    const rows = Array.from(m.entries())
+      .sort((a,b)=> b[1]-a[1])
+      .filter(([canon, count]) => count >= 3);
     out[t] = new Set(rows.map(([canon])=> canon));
   }
   return out;
