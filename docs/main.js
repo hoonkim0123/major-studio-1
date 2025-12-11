@@ -1,7 +1,3 @@
-/***** =========================================================
- * Language Within Papers — Mosaic + Detail Overlay (FULL JS v5)
- * (Applied: 4) Sort switch, 5) Tooltip thumbnail)
- * ========================================================== */
 
 /* ===================== 0) Helpers / Utilities ===================== */
 const $  = (sel)=>document.querySelector(sel);
@@ -127,43 +123,38 @@ function buildImageCandidates(doc){
 /* ===================== 1) Canonical Groups (subcategories) ===================== */
 const CANONICAL_GROUPS = {
   Military: {
-    army: ["army","regiment","troop","troops","militia","infantry","dragoons","cavalry","company","battalion","soldier","enlist","corps","navy","medic","marine"],
-    battle: ["battle","campaign","engagement","skirmish","siege","victory","defeat","combat","encounter"],
-    command: ["general","colonel","captain","major","lieutenant","commander","officer","orders","dispatch","command","leadership","Commodore"],
-    fortification: ["fort","garrison","barracks","artillery","arsenal","munition","battery","encampment"],
-    defense: ["defense","defence"]
+    army: ["army","militia","company","navy","discharge","medic","defense","defence"],
+    battle: ["battle","engagement","siege"],
+    command: ["general","colonel","captain","major","lieutenant","orders","dispatch","command"],
+    fortification: ["fort","artillery"]
   },
   Society: {
-    family: ["family","marriage","wives","husband","child","children","women","household","kin","domestic","widow"],
-    education: ["education","school","academy","college","apprentice","tutorial","study","lesson","student","teacher"],
-    labor: ["work","labor","occupation","craft","tradecraft","artisan","guild","employment","profession"],
-    community: ["community","charity","custom","fashion","festival","association","society","public",],
-    slavery: ["slavery","slave","slaves","enslaved","enslavement","bondage","slavers","slaver"]
+    family: ["family","marriage","married","husband","child","children","women","household","domestic","widow"],
+    education: ["education","school","college","apprentice","study"],
+    community: ["community","society","public"],
+    slavery: ["slavery","slave","enslaved"],
+    document: ["certificate","deed"]
   },
   Political: {
-    government: ["congress","senate","assembly","committee","governor","president","crown","parliament","ministry","council","authority","administration","Courthouse","deed","law","act","bill","statute","ordinance","charter","code","resolution","decree","legislation","constitution","constitutional","amendment","amendments","ratify","ratified","ratification","confederation","federal","federalist","union"],
-    election: ["election","vote","ballot","suffrage","poll","candidate","representation","constituent"],
-    diplomacy: ["treaty","alliance","proclamation","declaration","embassy","negotiation","agreement","commission","consul"],
-    revolution: ["revolution","revolutionary","rebellion","rebels"],
+    government: ["congress","senate","assembly","governor","president","crown","authority","administration","deed","law","act","acts","bill","proclamation","charter","resolution","legislation","constitution","constitutional","ratified","confederation","federal","federalist","union","appointment","appointed","convention","patriot","patriots"],
+    election: ["election","vote","ballot"],
+    diplomacy: ["treaty","declaration","agreement","commission","consul"],
+    revolution: ["revolution","revolutionary","rebellion"],
     independence: ["independence","independent"],
-    rights: ["rights","liberty","freedom","privilege","privileges","taxation","taxes","tax","citizenship","taxed"],
-    patriot: ["patriot","patriots"]
+    rights: ["rights","liberty","freedom","citizenship"]
   },
   Religion: {
-    church: ["church","chapel","parish","meetinghouse","cathedral","altar"],
-    clergy: ["clergy","clergyman","minister","pastor","priest","reverend","bishop","deacon"],
-    scripture: ["bible","gospel","sermon","homily","psalm","hymn","scripture","testament","epistle","tract"],
-    congregation: ["congregation","sabbath","worship","communion","sacrament","devotion","prayer"],
-    movements: ["puritan","evangelical","evangelicals","revivalist","great_awakening"],
-    doctrine: ["faith","grace","salvation","providence","piety","godliness","sanctification"]
+    church: ["church","priest","bishop","deacon"],
+    scripture: ["bible","testament","prayer","prayers"],
+    ceremony: ["baptismal"],
+    movements: ["puritan","evangelical"],
+    faith: ["faith","providence"]
   },
   Business: {
-    trade: ["trade","merchant","merchandise","tariff","duty","import","export","commerce","business","industry","reciept","merchants"],
-    market: ["market","goods","sale","auction","price","retail","wholesale","supply","demand","produce"],
-    shipping: ["shipment","cargo","freight","warehouse","inventory","consignment","vessel","harbor","port","navigation","dock"],
-    finance: ["account","invoice","ledger","receipt","credit","debt","currency","bank","note","notes","bond","loan","payment","shilling","shillings","pence","penny","pennies","pound","pounds","banknote","banknotes","specie","bill","bills","billofcredit","dollars","dollar"],
-    plantation: ["plantation","plantations"],
-    manufacture: ["manufacturer","manufacturers","manufacture","manufacturing","workshop","mill","mills","factory","factories"]
+    trade: ["trade","merchant","duty","business","merchants","cargo","vessel","port"],
+    market: ["market","goods","sale"],
+    finance: ["account","invoice","receipt","debt","payment"],
+    currency: ["note","notes","bill","bills","dollar","dollars","shilling","shillings","pence","pound","pounds","uncut"]
   }
 };
 
@@ -175,6 +166,7 @@ const PHRASE_LEXICON = {
   "continental congress":      { topic:"Political", canonical:"government" },
   "declaration of independence": { topic:"Political", canonical:"government" },
   "stamp act":                 { topic:"Political", canonical:"government" },
+  "post office act":           { topic:"Political", canonical:"government" },
   "george washington":         { topic:"Political", canonical:"president" },
   "general washington":        { topic:"Military",  canonical:"army" },
   "general edward hand":       { topic:"Military",  canonical:"army" },
@@ -182,32 +174,33 @@ const PHRASE_LEXICON = {
   "continental army":          { topic:"Military",  canonical:"army" },
   "state militia":             { topic:"Military",  canonical:"army" },
   "regular troops":            { topic:"Military",  canonical:"army" },
-  "baptismal certificate":     { topic:"Religion",  canonical:"church"  },
+  "baptismal certificate":     { topic:"Religion",  canonical:"ceremony"  },
+  "naturalization certificate": { topic:"Political", canonical:"government" },
+  "membership certificate":    { topic:"Society",   canonical:"community" },
+  "account book":              { topic:"Business",  canonical:"finance" },
+  "uncut sheet":               { topic:"Business",  canonical:"currency" },
   "Psalms of David":           { topic:"Religion",  canonical:"scripture"  },
   "Kings People":              { topic:"Political", canonical:"government"  },
-  "War Office":                 { topic:"Military",  canonical:"army" },
+  "War Office":                { topic:"Military",  canonical:"army" },
   "Consul General":            { topic:"Political", canonical:"diplomacy" },
   "rate folded letter":        { topic:"Political", canonical:"government" },
-  "Invitation to Ball":    { topic:"Society",   canonical:"community"  },
-  "tiered rate systems": { topic:"Political", canonical:"government" },
+  "Invitation to Ball":        { topic:"Society",   canonical:"community"  },
+  "tiered rate systems":       { topic:"Political", canonical:"government" },
   "Royal Standard English Dictionary": { topic:"Society", canonical:"education" },
-  "William Henry Harrison": { topic:"Political", canonical:"president" },
+  "William Henry Harrison":    { topic:"Political", canonical:"president" },
   "Way to Wealth or Poor Richard Improved": { topic:"Society", canonical:"education" },
-  "Valentine Card": { topic:"Society", canonical:"community" },
-  "naturalization certificate": { topic:"Political", canonical:"government" },
-  "Joel Barlow": { topic:"Political", canonical:"government" },
-  "levying of fines": { topic:"Political", canonical:"government" },
-  "account book": { topic:"Business", canonical:"finance" },
-  "Jasper Yeates": { topic:"Political", canonical:"government" },
+  "Valentine Card":            { topic:"Society",   canonical:"community" },
+  "Joel Barlow":               { topic:"Political", canonical:"government" },
+  "levying of fines":          { topic:"Political", canonical:"government" },
+  "Jasper Yeates":             { topic:"Political", canonical:"government" },
   "Deputy Post Master General,": { topic:"Political", canonical:"government" },
-  "Thomas Jefferson": { topic:"Political", canonical:"president" },
-  "James Madison": { topic:"Political", canonical:"president" },
-  "Great Migration": { topic:"Society", canonical:"community" },
-  "George Germain": { topic:"Political", canonical:"government" },
-  "James Monroe": { topic:"Political", canonical:"president" },
-  "john adams": { topic:"Political", canonical:"president" },
-  "Public Service": { topic:"Political", canonical:"government" },
-  "Membership Certificate": { topic:"Society", canonical:"community" },
+  "Thomas Jefferson":          { topic:"Political", canonical:"president" },
+  "James Madison":             { topic:"Political", canonical:"president" },
+  "Great Migration":           { topic:"Society",   canonical:"community" },
+  "George Germain":            { topic:"Political", canonical:"government" },
+  "James Monroe":              { topic:"Political", canonical:"president" },
+  "john adams":                { topic:"Political", canonical:"president" },
+  "Public Service":            { topic:"Political", canonical:"government" }
 };
 
 /* ===== Build LEXICON ===== */
@@ -227,19 +220,17 @@ const LEXICON = (() => {
 
 /* ===== TOPIC_CORE ===== */
 const TOPIC_CORE = {
-  Political: ["political","politics","revolution","revolutionary","independence","liberty","freedom","patriot","colony","colonies",
-    "rights","constitution","declaration","amendment","confederation",
+  Political: ["political","politics","revolution","revolutionary","independence","liberty","freedom","patriot","colonies",
+    "rights","constitution","declaration","confederation",
     "government","law","congress","senate",
-    "representative","delegate","convention","ratify","ratification"
+    "representative","delegate","convention","ratification"
   ],
-  Military: ["war","wars","wartime","military","martial","militia","regiment","regiments",
-    "commander","commanders","officers","officer","siege","sieges","fort","forts",
-    "garrison","garrisons","campaign","campaigns","soldier","soldiers","defense","defence",
-    "artillery","marines","infantry","cavalry","dragoons","battalion","battalions","company","companies","corps"
+  Military: ["war","wars","military","militia","officers","navy","siege","fort",
+    "soldiers","defense","defence","artillery","company"
   ],
-  Society: ["women","family","education","charity","association","customs","tradition","slavery","social","inheritance","kinship","domestic","marriage","apprentice","guild","labor","occupation","craft","tradecraft","artisan","employment","profession"],
-  Religion: ["faith","divine","godliness","providence","salvation","grace","spirit","soul","worship","devotion","religious","puritan","evangelical","moral","morality"],
-  Business: ["plantation","manufacturer","enterprise","property","labor","production","exportation","warehouse","shipbuilding","cents","currency","finance","credit","debt","bank","invoice","ledger","receipt","tariff","duty","commerce","trade","merchant","merchandise"]
+  Society: ["women","family","education","customs","tradition","slavery","social","inheritance","domestic","marriage","apprentice"],
+  Religion: ["faith","providence","religious","puritan","evangelical","moral","morality"],
+  Business: ["cents","currency","commerce","trade","merchant","duty"]
 };
 for (const [topic, words] of Object.entries(TOPIC_CORE)){
   for (const w of words){
@@ -253,7 +244,6 @@ const CONDITIONAL_TERMS = {
   bill: /congress|senate|parliament|law|legislation/i,
   general: /officer|army|battle|military/i,
   order: /military|command|battle|army/i,
-  note: /shilling|pence|pound|bank|currency|issue|sheet|uncut|denomination/i,
   bank: /credit|finance|currency|debt|account/i,
   work: /labor|employment|apprentice|guild/i,
   providence: /divine|god|faith|grace|salvation|worship|church|lord|heaven|blessed|almighty/i
@@ -414,9 +404,43 @@ function getCanonicalKeywords(topic, canonical){
   const fromPhrases = Object.entries(PHRASE_LEXICON)
     .filter(([k,v]) => v.topic===topic && v.canonical===canonical)
     .map(([k])=> k);
-  const phrases = fromPhrases.sort((a,b)=> b.length - a.length);
-  const words   = Array.from(new Set(fromGroups.map(s=>s.toLowerCase()))).sort();
-  return { phrases, words };
+  
+  // Count keyword frequencies in documents
+  const keywordCounts = new Map();
+  for (const d of DOCS) {
+    if (d.canonical_key !== `${topic}__${canonical}`) continue;
+    const text = getDocText(d).toLowerCase();
+    
+    // Count phrase matches
+    for (const phrase of fromPhrases) {
+      const phraseTokens = phrase.toLowerCase().replace(/\s+/g, " ");
+      if (text.includes(phraseTokens)) {
+        keywordCounts.set(phrase, (keywordCounts.get(phrase) || 0) + 1);
+      }
+    }
+    
+    // Count word matches
+    for (const word of fromGroups) {
+      const wordLower = word.toLowerCase();
+      // Simple word boundary check
+      const regex = new RegExp(`\\b${wordLower}\\b`, 'gi');
+      const matches = text.match(regex);
+      if (matches) {
+        keywordCounts.set(wordLower, (keywordCounts.get(wordLower) || 0) + matches.length);
+      }
+    }
+  }
+  
+  // Sort by frequency
+  const allKeywords = Array.from(keywordCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([kw]) => kw);
+  
+  // Separate into phrases (multi-word) and words (single word), keeping frequency order
+  const phrases = allKeywords.filter(kw => kw.includes(' '));
+  const words = allKeywords.filter(kw => !kw.includes(' '));
+  
+  return { phrases, words, frequencies: keywordCounts };
 }
 
 /* ===================== 5) Multi-tagging ===================== */
@@ -788,7 +812,7 @@ function renderLegend(){
     };
 
     const preview = getCanonicalKeywords(r.topic, r.canonical);
-    const previewList = [...preview.phrases, ...preview.words].slice(0,5);
+    const previewList = [...preview.phrases, ...preview.words].slice(0, 5);
     const tipHTML = previewList.length
       ? `<div class="t1">${r.canonical}</div><div class="t3">${previewList.join(", ")}</div>`
       : `<div class="t1">${r.canonical}</div><div class="t3" style="color:#888">no keywords</div>`;
